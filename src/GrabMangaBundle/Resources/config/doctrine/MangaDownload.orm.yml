@@ -1,0 +1,86 @@
+GrabMangaBundle\Entity\MangaDownload:
+    type: entity
+    table: manga_download
+    indexes:
+        fk_manga_download_user1_idx:
+            columns:
+                - user_id
+        fk_manga_download_manga_chapter1_idx:
+            columns:
+                - manga_chapter_id
+        fk_manga_download_manga_tome1_idx:
+            columns:
+                - manga_tome_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        currentPageDecode:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: current_page_decode
+        currentPagePdf:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: current_page_pdf
+        maxPage:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            column: max_page
+        current:
+            type: smallint
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+        finished:
+            type: boolean
+            nullable: false
+            options:
+                default: '0'
+    manyToOne:
+        mangaChapter:
+            targetEntity: MangaChapter
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                manga_chapter_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        mangaTome:
+            targetEntity: MangaTome
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                manga_tome_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        user:
+            targetEntity: User
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                user_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

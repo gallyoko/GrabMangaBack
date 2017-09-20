@@ -1,0 +1,32 @@
+GrabMangaBundle\Entity\Manga:
+    type: entity
+    table: manga
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        title:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+        url:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+        synopsis:
+            type: text
+            nullable: true
+            length: 65535
+            options:
+                fixed: false
+    lifecycleCallbacks: {  }

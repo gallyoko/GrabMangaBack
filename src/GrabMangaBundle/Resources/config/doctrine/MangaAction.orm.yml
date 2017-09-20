@@ -1,0 +1,24 @@
+GrabMangaBundle\Entity\MangaAction:
+    type: entity
+    table: manga_action
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        save:
+            type: boolean
+            nullable: false
+            options:
+                default: '0'
+        maj:
+            type: boolean
+            nullable: false
+            options:
+                default: '0'
+    lifecycleCallbacks: {  }

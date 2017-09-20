@@ -1,0 +1,44 @@
+GrabMangaBundle\Entity\User:
+    type: entity
+    table: user
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        profil:
+            type: string
+            nullable: false
+            length: 50
+            options:
+                fixed: false
+        username:
+            type: string
+            nullable: false
+            length: 100
+            options:
+                fixed: false
+        email:
+            type: string
+            nullable: false
+            length: 150
+            options:
+                fixed: false
+        login:
+            type: string
+            nullable: false
+            length: 45
+            options:
+                fixed: false
+        password:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+    lifecycleCallbacks: {  }
