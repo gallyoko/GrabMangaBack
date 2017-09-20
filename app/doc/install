@@ -1,0 +1,17 @@
+current_path=`pwd`
+path_install="`dirname \"$0\"`"
+path_install="`( cd \"$path_install\" && pwd )`"
+if [ -z "$path_install" ] ; then
+    echo "Error"
+    exit 1  # fail
+else
+    cd $path_install/../..
+    composer install
+    cd $path_install
+    unzip GrabManga.sql.zip
+    chmod -Rf 755 $path_install/../../
+    mysql -u root -pFred8076$ < GrabManga.sql
+    rm -f GrabManga.sql
+fi
+
+cd $current_path
