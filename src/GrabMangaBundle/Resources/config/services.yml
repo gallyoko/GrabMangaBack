@@ -1,11 +1,11 @@
 services:
-#    grab_manga.example:
-#        class: GrabMangaBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
-
     message.service:
             class: GrabMangaBundle\Services\MessageService
             arguments: [ ]
+
+    bdd.service:
+            class: GrabMangaBundle\Services\BddService
+            arguments: [ "@doctrine" ]
 
     manga.service:
         class: GrabMangaBundle\Services\MangaService
