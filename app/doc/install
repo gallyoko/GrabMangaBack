@@ -1,17 +1,23 @@
+echo "Please enter root password MySQL : "
+read inputMySqlPassword
+
 current_path=`pwd`
 path_install="`dirname \"$0\"`"
 path_install="`( cd \"$path_install\" && pwd )`"
+
 if [ -z "$path_install" ] ; then
-    echo "Error"
-    exit 1  # fail
+    echo "Error auto install. Sorry, but you have to do it manually."
 else
+    log="$path_install/../../var/logs/install.log"
+    echo "Running installation ..."
     cd $path_install/../..
-    composer install
+    composer install > $log
     cd $path_install
-    unzip GrabManga.sql.zip
+    unzip GrabManga.sql.zip >> $log
     chmod -Rf 755 $path_install/../../
-    mysql -u root -pFred8076$ < GrabManga.sql
+    mysql -u root -p${inputMySqlPassword} < GrabManga.sql
     rm -f GrabManga.sql
+
 fi
 
 cd $current_path
