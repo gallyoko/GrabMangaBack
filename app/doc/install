@@ -13,10 +13,10 @@ else
     cd $path_install/../..
     composer install > $log
     cd $path_install
-    unzip GrabManga.sql.zip >> $log
+    unzip grabmanga.sql.zip >> $log
     chmod -Rf 755 $path_install/../../
-    mysql -u root -p${inputMySqlPassword} < GrabManga.sql
-    rm -f GrabManga.sql
+    mysql -u root -p${inputMySqlPassword} < grabmanga.sql
+    rm -f grabmanga.sql
 
 fi
 
