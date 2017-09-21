@@ -1,0 +1,291 @@
+GrabMangaBundle\Entity\Manga:
+    properties:
+        title:
+            - Type: 
+                type: string
+                message: "L'attribut <title> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <title> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <title> est obligatoire !"
+        url:
+            - Type: 
+                type: string
+                message: "L'attribut <url> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <url> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <url> est obligatoire !"
+        synopsis:
+            - Type: 
+                type: text
+                message: "L'attribut <synopsis> doit etre de type <text> !"
+            - Length: 
+                max: 65535
+                maxMessage: "La longueur de l'attribut <synopsis> doit faire au plus {{ limit }} caracteres !"
+
+GrabMangaBundle\Entity\MangaAction:
+    properties:
+        save:
+            - Type: 
+                type: boolean
+                message: "L'attribut <save> doit etre de type <boolean> !"
+            - NotBlank:
+                message: "L'attribut <save> est obligatoire !"
+        maj:
+            - Type: 
+                type: boolean
+                message: "L'attribut <maj> doit etre de type <boolean> !"
+            - NotBlank:
+                message: "L'attribut <maj> est obligatoire !"
+
+GrabMangaBundle\Entity\MangaChapter:
+    properties:
+        title:
+            - Type: 
+                type: string
+                message: "L'attribut <title> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <title> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <title> est obligatoire !"
+        url:
+            - Type: 
+                type: string
+                message: "L'attribut <url> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <url> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <url> est obligatoire !"
+        mangaTome:
+            - Type:
+                type: GrabMangaBundle\Entity\MangaTome
+                message: "L'attribut <mangaTome> de type <MangaTome> est obligatoire !"
+        manga:
+            - Type:
+                type: GrabMangaBundle\Entity\Manga
+                message: "L'attribut <manga> de type <Manga> est obligatoire !"
+
+GrabMangaBundle\Entity\MangaDownload:
+    properties:
+        currentPageDecode:
+            - Type: 
+                type: integer
+                message: "L'attribut <currentPageDecode> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <currentPageDecode> est obligatoire !"
+        currentPagePdf:
+            - Type: 
+                type: integer
+                message: "L'attribut <currentPagePdf> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <currentPagePdf> est obligatoire !"
+        maxPage:
+            - Type: 
+                type: integer
+                message: "L'attribut <maxPage> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <maxPage> est obligatoire !"
+        current:
+            - Type: 
+                type: smallint
+                message: "L'attribut <current> doit etre de type <smallint> !"
+            - NotBlank:
+                message: "L'attribut <current> est obligatoire !"
+        finished:
+            - Type: 
+                type: boolean
+                message: "L'attribut <finished> doit etre de type <boolean> !"
+            - NotBlank:
+                message: "L'attribut <finished> est obligatoire !"
+        mangaChapter:
+            - Type:
+                type: GrabMangaBundle\Entity\MangaChapter
+                message: "L'attribut <mangaChapter> de type <MangaChapter> est obligatoire !"
+        mangaTome:
+            - Type:
+                type: GrabMangaBundle\Entity\MangaTome
+                message: "L'attribut <mangaTome> de type <MangaTome> est obligatoire !"
+        user:
+            - Type:
+                type: GrabMangaBundle\Entity\User
+                message: "L'attribut <user> de type <User> est obligatoire !"
+
+GrabMangaBundle\Entity\MangaEbook:
+    properties:
+        urlMask:
+            - Type: 
+                type: string
+                message: "L'attribut <urlMask> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <urlMask> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <urlMask> est obligatoire !"
+        pageMin:
+            - Type: 
+                type: string
+                message: "L'attribut <pageMin> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <pageMin> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <pageMin> est obligatoire !"
+        pageMax:
+            - Type: 
+                type: string
+                message: "L'attribut <pageMax> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <pageMax> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <pageMax> est obligatoire !"
+        pageMask:
+            - Type: 
+                type: string
+                message: "L'attribut <pageMask> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <pageMask> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <pageMask> est obligatoire !"
+        format:
+            - Type: 
+                type: string
+                message: "L'attribut <format> doit etre de type <string> !"
+            - Length: 
+                max: 4
+                maxMessage: "La longueur de l'attribut <format> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <format> est obligatoire !"
+        mangaChapter:
+            - Type:
+                type: GrabMangaBundle\Entity\MangaChapter
+                message: "L'attribut <mangaChapter> de type <MangaChapter> est obligatoire !"
+
+GrabMangaBundle\Entity\MangaMaj:
+    properties:
+        timestamp:
+            - Type: 
+                type: integer
+                message: "L'attribut <timestamp> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <timestamp> est obligatoire !"
+        countTitle:
+            - Type: 
+                type: integer
+                message: "L'attribut <countTitle> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <countTitle> est obligatoire !"
+        countTome:
+            - Type: 
+                type: integer
+                message: "L'attribut <countTome> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <countTome> est obligatoire !"
+        countChapter:
+            - Type: 
+                type: integer
+                message: "L'attribut <countChapter> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <countChapter> est obligatoire !"
+        filename:
+            - Type: 
+                type: string
+                message: "L'attribut <filename> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <filename> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <filename> est obligatoire !"
+
+GrabMangaBundle\Entity\MangaTome:
+    properties:
+        title:
+            - Type: 
+                type: string
+                message: "L'attribut <title> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <title> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <title> est obligatoire !"
+        manga:
+            - Type:
+                type: GrabMangaBundle\Entity\Manga
+                message: "L'attribut <manga> de type <Manga> est obligatoire !"
+
+GrabMangaBundle\Entity\TokenUser:
+    properties:
+        value:
+            - Type: 
+                type: string
+                message: "L'attribut <value> doit etre de type <string> !"
+            - Length: 
+                max: 100
+                maxMessage: "La longueur de l'attribut <value> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <value> est obligatoire !"
+        time:
+            - Type: 
+                type: bigint
+                message: "L'attribut <time> doit etre de type <bigint> !"
+            - NotBlank:
+                message: "L'attribut <time> est obligatoire !"
+        user:
+            - Type:
+                type: GrabMangaBundle\Entity\User
+                message: "L'attribut <user> de type <User> est obligatoire !"
+
+GrabMangaBundle\Entity\User:
+    properties:
+        profil:
+            - Type: 
+                type: string
+                message: "L'attribut <profil> doit etre de type <string> !"
+            - Length: 
+                max: 50
+                maxMessage: "La longueur de l'attribut <profil> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <profil> est obligatoire !"
+        username:
+            - Type: 
+                type: string
+                message: "L'attribut <username> doit etre de type <string> !"
+            - Length: 
+                max: 100
+                maxMessage: "La longueur de l'attribut <username> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <username> est obligatoire !"
+        email:
+            - Type: 
+                type: string
+                message: "L'attribut <email> doit etre de type <string> !"
+            - Length: 
+                max: 150
+                maxMessage: "La longueur de l'attribut <email> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <email> est obligatoire !"
+        login:
+            - Type: 
+                type: string
+                message: "L'attribut <login> doit etre de type <string> !"
+            - Length: 
+                max: 45
+                maxMessage: "La longueur de l'attribut <login> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <login> est obligatoire !"
+        password:
+            - Type: 
+                type: string
+                message: "L'attribut <password> doit etre de type <string> !"
+            - Length: 
+                max: 255
+                maxMessage: "La longueur de l'attribut <password> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <password> est obligatoire !"
+
