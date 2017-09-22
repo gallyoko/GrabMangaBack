@@ -22,7 +22,7 @@ class SynchroMangaCommand extends ContainerAwareCommand
         try {
             $output->writeln("Lancement de la synchronisation.");
             $this->init();
-            $this->launch($output);
+            $this->launch();
             $output->writeln("Termine.");
         } catch (\Exception $ex) {
             $output->writeln($ex->getMessage());
@@ -38,7 +38,7 @@ class SynchroMangaCommand extends ContainerAwareCommand
         }
     }
 
-    private function launch($output) {
+    private function launch() {
         try {
             $this->containerApp->get('bdd.service')->checkSaveOk();
             $this->containerApp->get('bdd.service')->setMangaAction();
