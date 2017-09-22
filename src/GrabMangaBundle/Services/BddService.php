@@ -177,4 +177,21 @@ class BddService {
         }
     }
 
+    public function checkSaveOk() {
+        try {
+            $sql = "SELECT * from manga_action WHERE save=1;";
+            $stmt = $this->em->getConnection()->prepare($sql);
+            $exec = $stmt->execute();
+            if ($exec === false) {
+                throw new \Exception("Erreur d'execution.");
+            }
+            $select = $stmt->fetchAll();
+            if (count($select) == 0) {
+                throw new \Exception("Sauvegarde non realisee.");
+            }
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors du controle de la sauvegarde : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
 }

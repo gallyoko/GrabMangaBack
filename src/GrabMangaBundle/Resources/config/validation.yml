@@ -20,8 +20,8 @@ GrabMangaBundle\Entity\Manga:
                 message: "L'attribut <url> est obligatoire !"
         synopsis:
             - Type: 
-                type: text
-                message: "L'attribut <synopsis> doit etre de type <text> !"
+                type: string
+                message: "L'attribut <synopsis> doit etre de type <string> !"
             - Length: 
                 max: 65535
                 maxMessage: "La longueur de l'attribut <synopsis> doit faire au plus {{ limit }} caracteres !"

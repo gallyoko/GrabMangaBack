@@ -1,12 +1,24 @@
 services:
     message.service:
-            class: GrabMangaBundle\Services\MessageService
-            arguments: [ ]
+        class: GrabMangaBundle\Services\MessageService
+        arguments: [ ]
+
+    japscan.service:
+        class: GrabMangaBundle\Services\JapscanService
+        arguments: [ ]
 
     bdd.service:
-            class: GrabMangaBundle\Services\BddService
-            arguments: [ "@doctrine" ]
+        class: GrabMangaBundle\Services\BddService
+        arguments: [ "@doctrine" ]
 
     manga.service:
         class: GrabMangaBundle\Services\MangaService
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_tome.service" ]
+
+    manga_tome.service:
+        class: GrabMangaBundle\Services\MangaTomeService
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_chapter.service" ]
+
+    manga_chapter.service:
+        class: GrabMangaBundle\Services\MangaChapterService
         arguments: [ "@doctrine", "@validator", "@message.service" ]

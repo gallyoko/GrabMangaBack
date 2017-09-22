@@ -6,21 +6,21 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SaveMangaCommand extends ContainerAwareCommand
+class SynchroMangaCommand extends ContainerAwareCommand
 {
     private $containerApp;
 
     protected function configure()
     {
         $this
-            ->setName('save:manga')
-            ->setDescription('Save all principal mangas table');
+            ->setName('sync:manga')
+            ->setDescription('Synchronize all principal mangas table');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $output->write("Lancement de la sauvegarde.");
+            $output->writeln("Lancement de la synchronisation.");
             $this->init();
             $this->launch($output);
             $output->writeln("Termine.");
@@ -40,18 +40,13 @@ class SaveMangaCommand extends ContainerAwareCommand
 
     private function launch($output) {
         try {
-            $this->containerApp->get('bdd.service')->dropSaveTables();
-            $output->write(".");
-            $this->containerApp->get('bdd.service')->saveTableManga();
-            $output->write(".");
-            $this->containerApp->get('bdd.service')->saveTableMangaTome();
-            $output->write(".");
-            $this->containerApp->get('bdd.service')->saveTableMangaChapter();
-            $output->write(".");
-            $this->containerApp->get('bdd.service')->saveTableMangaEbook();
-            $output->write(".");
-            $this->containerApp->get('bdd.service')->setMangaAction(1);
-            $output->write(".");
+            $this->containerApp->get('bdd.service')->checkSaveOk();
+            $this->containerApp->get('bdd.service')->setMangaAction();
+            $bookMangas = $this->containerApp->get('japscan.service')->setMangaTitles();
+            foreach ($bookMangas as $bookManga) {
+                $manga = $this->containerApp->get('japscan.service')->setTomeAndChapter($bookManga);
+                $this->containerApp->get('manga.service')->add($manga);
+            }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode());
         }
