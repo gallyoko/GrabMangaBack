@@ -14,12 +14,14 @@ class MangaChapterService {
 	private $doctrine;
 	private $validator;
 	private $serviceMessage;
-	
-	public function __construct($doctrine, $validator, $serviceMessage) {
-		$this->doctrine = $doctrine;
-		$this->validator = $validator;
-		$this->serviceMessage = $serviceMessage;
-	}
+    private $serviceMangaEbook;
+
+    public function __construct($doctrine, $validator, $serviceMessage, $serviceMangaEbook) {
+        $this->doctrine = $doctrine;
+        $this->validator = $validator;
+        $this->serviceMessage = $serviceMessage;
+        $this->serviceMangaEbook = $serviceMangaEbook;
+    }
 
     public function add(Manga $manga, BookTome $bookTome, MangaTome $mangaTome = null) {
         try {
@@ -47,13 +49,14 @@ class MangaChapterService {
                     $em->persist($mangaChapter);
                 }
                 $em->flush();
+                $this->serviceMangaEbook->add($mangaChapter, $bookChapter->getBookEbook());
             }
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement d'un chapitre d'un tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    public function getByManga(Manga $manga) {
+    public function getByManga(Manga $manga, $json =false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
             $mangaChapters = $repo->findBy([
@@ -61,11 +64,16 @@ class MangaChapterService {
             ]);
             $data = [];
             foreach ($mangaChapters as $mangaChapter) {
-                $data[] = [
-                    "id" => $mangaChapter->getId(),
-                    "title" => $mangaChapter->getTitle(),
-                    "url" => $mangaChapter->getUrl(),
-                ];
+                if ($json) {
+                    $data[] = [
+                        "id" => $mangaChapter->getId(),
+                        "title" => $mangaChapter->getTitle(),
+                        "url" => $mangaChapter->getUrl(),
+                        "tomeId" => $mangaChapter->getMangaTome()->getId(),
+                    ];
+                } else {
+                    $data[] = $mangaChapter;
+                }
             }
             return $data;
         } catch (\Exception $ex) {

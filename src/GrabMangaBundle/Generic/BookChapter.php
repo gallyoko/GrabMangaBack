@@ -18,6 +18,11 @@ class BookChapter
      */
     private $url;
 
+    /**
+     * @var \GrabMangaBundle\Generic\BookEbook
+     */
+    private $bookEbook = null;
+
 
     /**
      * Set title
@@ -65,6 +70,30 @@ class BookChapter
     public function getUrl()
     {
         return $this->url;
+    }
+
+    /**
+     * Set bookEbook
+     *
+     * @param \GrabMangaBundle\Generic\BookEbook $bookEbook
+     *
+     * @return BookChapter
+     */
+    public function setBookEbook(\GrabMangaBundle\Generic\BookEbook $bookEbook = null)
+    {
+        $this->bookEbook = $bookEbook;
+
+        return $this;
+    }
+
+    /**
+     * Get bookEbook
+     *
+     * @return \GrabMangaBundle\Generic\BookEbook
+     */
+    public function getBookEbook()
+    {
+        return $this->bookEbook;
     }
 }
 
