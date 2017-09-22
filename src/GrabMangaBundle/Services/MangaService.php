@@ -20,6 +20,19 @@ class MangaService {
         $this->serviceMangaTome = $serviceMangaTome;
 	}
 
+    public function getOne($id) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');
+            $manga = $repo->find($id);
+            if(!$manga) {
+                throw new \Exception("Aucun manga.", Response::HTTP_NOT_FOUND);
+            }
+            return $manga;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du manga : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function getList() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');

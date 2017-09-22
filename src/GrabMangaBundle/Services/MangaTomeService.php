@@ -21,6 +21,19 @@ class MangaTomeService {
         $this->serviceMangaChapter = $serviceMangaChapter;
 	}
 
+    public function getOne($id) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
+            $mangaTome = $repo->find($id);
+            if(!$mangaTome) {
+                throw new \Exception("Aucun Tome.", Response::HTTP_NOT_FOUND);
+            }
+            return $mangaTome;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur du tome : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function add(Manga $manga, Book $book) {
         try {
             $em = $this->doctrine->getManager();
@@ -45,6 +58,25 @@ class MangaTomeService {
             }
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement d'un tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getByManga(Manga $manga) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
+            $mangaTomes = $repo->findBy([
+                "manga" => $manga,
+            ]);
+            $data = [];
+            foreach ($mangaTomes as $mangaTome) {
+                $data[] = [
+                    "id" => $mangaTome->getId(),
+                    "title" => $mangaTome->getTitle(),
+                ];
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

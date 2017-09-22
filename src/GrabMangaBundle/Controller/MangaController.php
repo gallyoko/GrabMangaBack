@@ -21,4 +21,43 @@ class MangaController extends Controller
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }
     }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/manga/tomes/{mangaId}")
+     */
+    public function getTomesAction($mangaId) {
+        try {
+            $manga = $this->get('manga.service')->getOne($mangaId);
+            return $this->get('manga_tome.service')->getByManga($manga);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/manga/chapters/{mangaId}")
+     */
+    public function getChaptersAction($mangaId) {
+        try {
+            $manga = $this->get('manga.service')->getOne($mangaId);
+            return $this->get('manga_chapter.service')->getByManga($manga);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/manga/tome/chapters/{tomeId}")
+     */
+    public function getChaptersTomeAction($tomeId) {
+        try {
+            $tome = $this->get('manga_tome.service')->getOne($tomeId);
+            return $this->get('manga_chapter.service')->getByTome($tome);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
 }

@@ -53,6 +53,46 @@ class MangaChapterService {
         }
     }
 
+    public function getByManga(Manga $manga) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
+            $mangaChapters = $repo->findBy([
+                "manga" => $manga,
+            ]);
+            $data = [];
+            foreach ($mangaChapters as $mangaChapter) {
+                $data[] = [
+                    "id" => $mangaChapter->getId(),
+                    "title" => $mangaChapter->getTitle(),
+                    "url" => $mangaChapter->getUrl(),
+                ];
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getByTome(MangaTome $mangaTome) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
+            $mangaChapters = $repo->findBy([
+                "mangaTome" => $mangaTome,
+            ]);
+            $data = [];
+            foreach ($mangaChapters as $mangaChapter) {
+                $data[] = [
+                    "id" => $mangaChapter->getId(),
+                    "title" => $mangaChapter->getTitle(),
+                    "url" => $mangaChapter->getUrl(),
+                ];
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private function getOneByTitle(Manga $manga, BookChapter $bookChapter, MangaTome $mangaTome = null) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
