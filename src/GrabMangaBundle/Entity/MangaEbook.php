@@ -20,22 +20,12 @@ class MangaEbook
     /**
      * @var string
      */
-    private $pageMin;
+    private $listPage;
 
     /**
      * @var string
      */
-    private $pageMax;
-
-    /**
-     * @var string
-     */
-    private $pageMask;
-
-    /**
-     * @var string
-     */
-    private $format;
+    private $listFormat;
 
     /**
      * @var \GrabMangaBundle\Entity\MangaChapter
@@ -78,99 +68,51 @@ class MangaEbook
     }
 
     /**
-     * Set pageMin
+     * Set listPage
      *
-     * @param string $pageMin
+     * @param string $listPage
      *
      * @return MangaEbook
      */
-    public function setPageMin($pageMin)
+    public function setListPage($listPage)
     {
-        $this->pageMin = $pageMin;
+        $this->listPage = $listPage;
 
         return $this;
     }
 
     /**
-     * Get pageMin
+     * Get listPage
      *
      * @return string
      */
-    public function getPageMin()
+    public function getListPage()
     {
-        return $this->pageMin;
+        return $this->listPage;
     }
 
     /**
-     * Set pageMax
+     * Set listFormat
      *
-     * @param string $pageMax
+     * @param string $listFormat
      *
      * @return MangaEbook
      */
-    public function setPageMax($pageMax)
+    public function setListFormat($listFormat)
     {
-        $this->pageMax = $pageMax;
+        $this->listFormat = $listFormat;
 
         return $this;
     }
 
     /**
-     * Get pageMax
+     * Get listFormat
      *
      * @return string
      */
-    public function getPageMax()
+    public function getListFormat()
     {
-        return $this->pageMax;
-    }
-
-    /**
-     * Set pageMask
-     *
-     * @param string $pageMask
-     *
-     * @return MangaEbook
-     */
-    public function setPageMask($pageMask)
-    {
-        $this->pageMask = $pageMask;
-
-        return $this;
-    }
-
-    /**
-     * Get pageMask
-     *
-     * @return string
-     */
-    public function getPageMask()
-    {
-        return $this->pageMask;
-    }
-
-    /**
-     * Set format
-     *
-     * @param string $format
-     *
-     * @return MangaEbook
-     */
-    public function setFormat($format)
-    {
-        $this->format = $format;
-
-        return $this;
-    }
-
-    /**
-     * Get format
-     *
-     * @return string
-     */
-    public function getFormat()
-    {
-        return $this->format;
+        return $this->listFormat;
     }
 
     /**

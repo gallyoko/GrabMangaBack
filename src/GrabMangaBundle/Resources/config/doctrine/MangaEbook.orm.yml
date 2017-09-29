@@ -22,33 +22,20 @@ GrabMangaBundle\Entity\MangaEbook:
             options:
                 fixed: false
             column: url_mask
-        pageMin:
+        listPage:
             type: string
             nullable: false
-            length: 255
+            length: 4000
             options:
                 fixed: false
-            column: page_min
-        pageMax:
+            column: list_page
+        listFormat:
             type: string
             nullable: false
-            length: 255
+            length: 45
             options:
                 fixed: false
-            column: page_max
-        pageMask:
-            type: string
-            nullable: false
-            length: 255
-            options:
-                fixed: false
-            column: page_mask
-        format:
-            type: string
-            nullable: false
-            length: 4
-            options:
-                fixed: false
+            column: list_format
     manyToOne:
         mangaChapter:
             targetEntity: MangaChapter
