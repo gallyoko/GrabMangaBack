@@ -141,7 +141,7 @@ class JapscanService {
             if ($fluxToClean !== false) {
                 $flux = str_replace("\n", ' ', $fluxToClean);
                 $partSearchBegin = '<select id="pages" name="pages">';
-                if (explode($partSearchBegin, $flux) > 1) {
+                if (count(explode($partSearchBegin, $flux)) > 1) {
                     list ($partBaseUrl, $partPages) = explode($partSearchBegin, $flux);
                     $partSearchEnd = '</select>';
                     list ($pageListToClean) = explode($partSearchEnd, trim($partPages));
