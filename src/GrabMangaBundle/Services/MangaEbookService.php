@@ -4,6 +4,7 @@ namespace GrabMangaBundle\Services;
 
 use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaEbook;
+use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Generic\BookEbook;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,25 +44,42 @@ class MangaEbookService {
                 } else {
                     $mangaEbook = new MangaEbook();
                 }
-                $mangaEbook->setFormat($bookEbook->getFormat())
-                    ->setPageMask($bookEbook->getPageMask())
-                    ->setPageMax($bookEbook->getPageMax())
-                    ->setPageMin($bookEbook->getPageMin())
+                $mangaEbook->setListPage(json_encode($bookEbook->getListPage()))
                     ->setUrlMask($bookEbook->getUrlMask())
-                    ->setMangaChapter($mangaChapter);
+                    ->setMangaChapter($mangaChapter)
+                    ->setListFormat(json_encode($bookEbook->getListFormat()));
                 $errors = $this->validator->validate($mangaEbook);
-                if (count($errors)>0) {
-                    throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                if (count($errors)==0) {
+                    if ($mangaEbookExist) {
+                        $em->merge($mangaEbook);
+                    } else {
+                        $em->persist($mangaEbook);
+                    }
+                    $em->flush();
                 }
-                if ($mangaEbookExist) {
-                    $em->merge($mangaEbook);
-                } else {
-                    $em->persist($mangaEbook);
-                }
-                $em->flush();
             }
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de l'ajout du ebook manga : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function getCountPageByChapters($mangaChapters) {
+        try {
+            $count = 0;
+            foreach ($mangaChapters as $mangaChapter) {
+                $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaEbook');
+                $mangaEbooks = $repo->findBy([
+                    "mangaChapter" => $mangaChapter,
+                ]);
+                foreach ($mangaEbooks as $mangaEbook) {
+                    echo $mangaEbook->getPageMax();
+                    die;
+                    $count += (int) $mangaEbook->getPageMax();
+                }
+            }
+            return $count;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur du calcul du nombre de page du tome : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

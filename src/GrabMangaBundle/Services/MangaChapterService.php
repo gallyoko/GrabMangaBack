@@ -81,7 +81,7 @@ class MangaChapterService {
         }
     }
 
-    public function getByTome(MangaTome $mangaTome) {
+    public function getByTome(MangaTome $mangaTome, $json = false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
             $mangaChapters = $repo->findBy([
@@ -89,11 +89,15 @@ class MangaChapterService {
             ]);
             $data = [];
             foreach ($mangaChapters as $mangaChapter) {
-                $data[] = [
-                    "id" => $mangaChapter->getId(),
-                    "title" => $mangaChapter->getTitle(),
-                    "url" => $mangaChapter->getUrl(),
-                ];
+                if ($json) {
+                    $data[] = [
+                        "id" => $mangaChapter->getId(),
+                        "title" => $mangaChapter->getTitle(),
+                        "url" => $mangaChapter->getUrl(),
+                    ];
+                } else {
+                    $data[] = $mangaChapter;
+                }
             }
             return $data;
         } catch (\Exception $ex) {

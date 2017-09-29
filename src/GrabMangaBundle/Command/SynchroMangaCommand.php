@@ -22,7 +22,7 @@ class SynchroMangaCommand extends ContainerAwareCommand
         try {
             $output->writeln("Lancement de la synchronisation.");
             $this->init();
-            $this->launch();
+            $this->launch($output);
             $output->writeln("Termine.");
         } catch (\Exception $ex) {
             $output->writeln($ex->getMessage());
@@ -38,14 +38,19 @@ class SynchroMangaCommand extends ContainerAwareCommand
         }
     }
 
-    private function launch() {
+    private function launch(OutputInterface $output) {
         try {
-            $this->containerApp->get('bdd.service')->checkSaveOk();
-            $this->containerApp->get('bdd.service')->setMangaAction();
-            $bookMangas = $this->containerApp->get('japscan.service')->setMangaTitles();
+            //$this->containerApp->get('bdd.service')->checkSaveOk();
+            //$this->containerApp->get('bdd.service')->setMangaAction();
+            $bookMangas = $this->containerApp->get('japscan.service')->getMangaTitles();
             foreach ($bookMangas as $bookManga) {
                 $mangaBook = $this->containerApp->get('japscan.service')->setTomeAndChapter($bookManga);
-                $this->containerApp->get('manga.service')->add($mangaBook);
+                try {
+                    $this->containerApp->get('manga.service')->add($mangaBook);
+                } catch (\Exception $ex) {
+                    $output->writeln($ex->getMessage(), $ex->getCode());
+                }
+                $mangaBook = null;
             }
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode());
