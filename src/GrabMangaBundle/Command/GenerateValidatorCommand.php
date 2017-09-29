@@ -1,5 +1,4 @@
 <?php
-
 namespace GrabMangaBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -10,13 +9,19 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 
+/**
+ * Generates validator yml file for entities bundle given
+ *
+ * Class GenerateValidatorCommand
+ * @package GrabMangaBundle\Command
+ */
 class GenerateValidatorCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
             ->setName('generate:validator')
-            ->setDescription('Generates the validator yml for the current entities bundle')
+            ->setDescription('Generates validator yml file for entities bundle given')
             ->addArgument('bundle', InputArgument::REQUIRED, 'Bundle name')
             ->addOption('option', null, InputOption::VALUE_NONE, 'Option description')
         ;
@@ -47,12 +52,19 @@ class GenerateValidatorCommand extends ContainerAwareCommand
             $output->writeln('Erreur lors de la generation des fichiers de description des entites.');
             $output->writeln('Arret du traitement.');
         }
+        // si un dossier doctrine existait déjà et avait donc été sauvegardé
+        // on le renome
         if ($doctrinePathSave) {
             rename($doctrinePath.'_old', $doctrinePath);
         }
         $output->writeln('Termine.');
     }
 
+    /**
+     * Return absolute doctrine table description file path
+     *
+     * @return bool|null|string
+     */
     private function getDoctrinePath() {
         try {
             $doctrinePath = realpath(
@@ -66,6 +78,12 @@ class GenerateValidatorCommand extends ContainerAwareCommand
         }
     }
 
+    /**
+     * Generate doctrine table xml description file
+     *
+     * @param $bundle
+     * @return bool
+     */
     private function generateXmlDescriptionEntities($bundle) {
         try {
             $command = $this->getApplication()->find('doctrine:mapping:import');
@@ -84,6 +102,12 @@ class GenerateValidatorCommand extends ContainerAwareCommand
         }
     }
 
+    /**
+     * Generate validator file from doctrine xml file
+     *
+     * @param OutputInterface $output
+     * @return bool
+     */
     private function generateValidator(OutputInterface $output) {
         try {
             $doctrinePath = $this->getDoctrinePath();
@@ -111,6 +135,7 @@ class GenerateValidatorCommand extends ContainerAwareCommand
                     fputs($validationYml, '    properties:'."\n");
                     $columnField = [];
                     foreach($xml->entity->field as $element => $value) {
+                        $type = '';
                         foreach ($value->attributes() as $fieldElement => $fieldValue) {
                             if ($fieldElement == 'name') {
                                 $fieldName = (string)$fieldValue;
@@ -118,9 +143,14 @@ class GenerateValidatorCommand extends ContainerAwareCommand
                             } elseif ($fieldElement == 'column') {
                                 $columnName = (string)$fieldValue;
                             } elseif ($fieldElement == 'nullable' && $fieldValue == 'false') {
-                                fputs($validationYml, '            - NotBlank:'."\n");
+                                if ($type == 'boolean') {
+                                    fputs($validationYml, '            - NotNull:'."\n");
+                                } else {
+                                    fputs($validationYml, '            - NotBlank:'."\n");
+                                }
                                 fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> est obligatoire !"'."\n");
                             } elseif ($fieldElement == 'type') {
+                                $type = $fieldValue;
                                 if ($fieldValue=='date') {
                                     fputs($validationYml, '            - Date: '."\n");
                                     fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre au format date"'."\n");
@@ -128,6 +158,18 @@ class GenerateValidatorCommand extends ContainerAwareCommand
                                     fputs($validationYml, '            - DateTime:'."\n");
                                     fputs($validationYml, '                format: "Y-m-d H:i:s"'."\n");
                                     fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit avoir un format de date <Y-m-d H:i:s>"'."\n");
+                                } elseif ($fieldValue=='text') {
+                                    fputs($validationYml, '            - Type: '."\n");
+                                    fputs($validationYml, '                type: string'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <string> !"'."\n");
+                                } elseif ($fieldValue=='smallint') {
+                                    fputs($validationYml, '            - Type: '."\n");
+                                    fputs($validationYml, '                type: integer'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <integer> !"'."\n");
+                                } elseif ($fieldValue=='boolean') {
+                                    fputs($validationYml, '            - Type: '."\n");
+                                    fputs($validationYml, '                type: bool'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <boolean> !"'."\n");
                                 } else {
                                     fputs($validationYml, '            - Type: '."\n");
                                     fputs($validationYml, '                type: '.$fieldValue."\n");
@@ -197,6 +239,11 @@ class GenerateValidatorCommand extends ContainerAwareCommand
         }
     }
 
+    /**
+     * remove doctrine table description file
+     *
+     * @return bool
+     */
     private function removeDoctrinePath() {
         try {
             $doctrinePath = $this->getDoctrinePath();
