@@ -141,8 +141,10 @@ class MangaDownloadService {
             if (!$this->mangaDownload) {
                 throw new \Exception("Aucun téléchargement en cours", 404);
             }
+            $maxPages = $this->mangaDownload->getMaxPage();
             $this->mangaDownload->setCurrent(false);
             $this->mangaDownload->setFinished(true);
+            $this->mangaDownload->setCurrentPagePdf($maxPages);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
                 throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
