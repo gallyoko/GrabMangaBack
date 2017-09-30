@@ -72,11 +72,22 @@ class GenerateService {
                     $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $chapter->getId() .
                         DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
                     try {
-                        $current = imagecreatefromjpeg($url);
+                        if (strtolower($formats[0]) == 'jpg') {
+                            $current = imagecreatefromjpeg($url);
+                        } elseif (strtolower($formats[0]) == 'png') {
+                            $current = imagecreatefrompng($url);
+                        } elseif (strtolower($formats[0]) == 'gif') {
+                            $current = imagecreatefromgif($url);
+                        }
                         if ($current) {
-                            imagejpeg($current, $fileTmp);
+                            if (strtolower($formats[0]) == 'jpg') {
+                                imagejpeg($current, $fileTmp);
+                            } elseif (strtolower($formats[0]) == 'png') {
+                                imagepng($current, $fileTmp);
+                            } elseif (strtolower($formats[0]) == 'gif') {
+                                imagegif($current, $fileTmp);
+                            }
                             imagedestroy($current);
-                            // $decode = $this->decodeImageJpg($fileTmp, $chapter['id'], $nbChapter);
                             copy($fileTmp, $fileEnd);
                             unlink($fileTmp);
                         }
