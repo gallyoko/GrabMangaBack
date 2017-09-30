@@ -2,6 +2,7 @@
 
 namespace GrabMangaBundle\Services;
 
+use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaDownload;
@@ -42,7 +43,6 @@ class GenerateService {
             $this->cleanDirectory($this->dirSrc);
             $this->serviceMangaDownload->tagCurrent();
             $this->aspireTome($tome);
-            $this->getPdfTomeName($tome);
             $pdfFilename = $this->getPdfTomeName($tome);
             $this->imageToPdf($pdfFilename);
             $this->cleanDirectory($this->dirDest);
@@ -63,37 +63,8 @@ class GenerateService {
                 $this->checkChapterDirectories($chapter);
                 $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
                 $pages = json_decode($mangaEbook->getListPage());
-                $formats = json_decode($mangaEbook->getListFormat());
                 foreach ($pages as $page) {
-                    $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()) .
-                        $page .'.'.$formats[0];
-                    $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId() .
-                        DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
-                    $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $chapter->getId() .
-                        DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
-                    try {
-                        if (strtolower($formats[0]) == 'jpg') {
-                            $current = imagecreatefromjpeg($url);
-                        } elseif (strtolower($formats[0]) == 'png') {
-                            $current = imagecreatefrompng($url);
-                        } elseif (strtolower($formats[0]) == 'gif') {
-                            $current = imagecreatefromgif($url);
-                        }
-                        if ($current) {
-                            if (strtolower($formats[0]) == 'jpg') {
-                                imagejpeg($current, $fileTmp);
-                            } elseif (strtolower($formats[0]) == 'png') {
-                                imagepng($current, $fileTmp);
-                            } elseif (strtolower($formats[0]) == 'gif') {
-                                imagegif($current, $fileTmp);
-                            }
-                            imagedestroy($current);
-                            copy($fileTmp, $fileEnd);
-                            unlink($fileTmp);
-                        }
-                    } catch (\Exception $ex) {
-                        //
-                    }
+                    $this->savePageImage($mangaEbook, $page);
                     $numPageDecode ++;
                     $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
                 }
@@ -102,6 +73,39 @@ class GenerateService {
             gc_collect_cycles();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de l'aspiration du tome : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    private function savePageImage(MangaEbook $mangaEbook, $page) {
+        try {
+            $formats = json_decode($mangaEbook->getListFormat());
+            $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()) .
+                $page .'.'.$formats[0];
+            $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
+                DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
+            $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
+                DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
+            if (strtolower($formats[0]) == 'jpg') {
+                $current = imagecreatefromjpeg($url);
+            } elseif (strtolower($formats[0]) == 'png') {
+                $current = imagecreatefrompng($url);
+            } elseif (strtolower($formats[0]) == 'gif') {
+                $current = imagecreatefromgif($url);
+            }
+            if ($current) {
+                if (strtolower($formats[0]) == 'jpg') {
+                    imagejpeg($current, $fileTmp);
+                } elseif (strtolower($formats[0]) == 'png') {
+                    imagepng($current, $fileTmp);
+                } elseif (strtolower($formats[0]) == 'gif') {
+                    imagegif($current, $fileTmp);
+                }
+                imagedestroy($current);
+                copy($fileTmp, $fileEnd);
+                unlink($fileTmp);
+            }
+        } catch (\Exception $ex) {
+            //throw new \Exception("Erreur lors de l'enregistrement de l'image : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
