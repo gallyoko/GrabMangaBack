@@ -1,5 +1,4 @@
 <?php
-
 namespace GrabMangaBundle\Services;
 
 use GrabMangaBundle\Entity\MangaEbook;
@@ -7,6 +6,10 @@ use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaDownload;
 
+/**
+ * Class GenerateService
+ * @package GrabMangaBundle\Services
+ */
 class GenerateService {
     private $doctrine;
     private $em;
@@ -18,7 +21,19 @@ class GenerateService {
     private $dirDest;
     private $dirPdf;
 
-    public function __construct($doctrine, $validator, $serviceMessage, MangaDownloadService $serviceMangaDownload,
+    /**
+     * GenerateService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param MangaDownloadService $serviceMangaDownload
+     * @param MangaChapterService $serviceMangaChapter
+     * @param $rootDir
+     * @param $path
+     */
+    public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaDownloadService $serviceMangaDownload,
                                 MangaChapterService $serviceMangaChapter, $rootDir, $path) {
         $this->doctrine = $doctrine;
         $this->em = $doctrine->getManager();
@@ -35,7 +50,8 @@ class GenerateService {
     }
 
     /**
-     * Génère un tome au format pdf et retourne le temps écoulé
+     * Génère un tome au format pdf et retourne le temps écoulé.
+     * Met à jour l'état du téléchargement
      *
      * @param MangaTome $tome
      * @param MangaDownload $download
