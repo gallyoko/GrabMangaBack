@@ -42,10 +42,9 @@ GrabMangaBundle\Entity\MangaDownload:
                 unsigned: false
             column: max_page
         current:
-            type: smallint
+            type: boolean
             nullable: false
             options:
-                unsigned: false
                 default: '0'
         finished:
             type: boolean

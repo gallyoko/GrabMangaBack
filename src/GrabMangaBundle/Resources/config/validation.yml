@@ -30,15 +30,15 @@ GrabMangaBundle\Entity\MangaAction:
     properties:
         save:
             - Type: 
-                type: boolean
+                type: bool
                 message: "L'attribut <save> doit etre de type <boolean> !"
-            - NotBlank:
+            - NotNull:
                 message: "L'attribut <save> est obligatoire !"
         maj:
             - Type: 
-                type: boolean
+                type: bool
                 message: "L'attribut <maj> doit etre de type <boolean> !"
-            - NotBlank:
+            - NotNull:
                 message: "L'attribut <maj> est obligatoire !"
 
 GrabMangaBundle\Entity\MangaChapter:
@@ -92,15 +92,15 @@ GrabMangaBundle\Entity\MangaDownload:
                 message: "L'attribut <maxPage> est obligatoire !"
         current:
             - Type: 
-                type: smallint
-                message: "L'attribut <current> doit etre de type <smallint> !"
-            - NotBlank:
+                type: bool
+                message: "L'attribut <current> doit etre de type <boolean> !"
+            - NotNull:
                 message: "L'attribut <current> est obligatoire !"
         finished:
             - Type: 
-                type: boolean
+                type: bool
                 message: "L'attribut <finished> doit etre de type <boolean> !"
-            - NotBlank:
+            - NotNull:
                 message: "L'attribut <finished> est obligatoire !"
         mangaChapter:
             - Type:
@@ -126,42 +126,24 @@ GrabMangaBundle\Entity\MangaEbook:
                 maxMessage: "La longueur de l'attribut <urlMask> doit faire au plus {{ limit }} caracteres !"
             - NotBlank:
                 message: "L'attribut <urlMask> est obligatoire !"
-        pageMin:
+        listPage:
             - Type: 
                 type: string
-                message: "L'attribut <pageMin> doit etre de type <string> !"
+                message: "L'attribut <listPage> doit etre de type <string> !"
             - Length: 
-                max: 255
-                maxMessage: "La longueur de l'attribut <pageMin> doit faire au plus {{ limit }} caracteres !"
+                max: 4000
+                maxMessage: "La longueur de l'attribut <listPage> doit faire au plus {{ limit }} caracteres !"
             - NotBlank:
-                message: "L'attribut <pageMin> est obligatoire !"
-        pageMax:
+                message: "L'attribut <listPage> est obligatoire !"
+        listFormat:
             - Type: 
                 type: string
-                message: "L'attribut <pageMax> doit etre de type <string> !"
+                message: "L'attribut <listFormat> doit etre de type <string> !"
             - Length: 
-                max: 255
-                maxMessage: "La longueur de l'attribut <pageMax> doit faire au plus {{ limit }} caracteres !"
+                max: 45
+                maxMessage: "La longueur de l'attribut <listFormat> doit faire au plus {{ limit }} caracteres !"
             - NotBlank:
-                message: "L'attribut <pageMax> est obligatoire !"
-        pageMask:
-            - Type: 
-                type: string
-                message: "L'attribut <pageMask> doit etre de type <string> !"
-            - Length: 
-                max: 255
-                maxMessage: "La longueur de l'attribut <pageMask> doit faire au plus {{ limit }} caracteres !"
-            - NotBlank:
-                message: "L'attribut <pageMask> est obligatoire !"
-        format:
-            - Type: 
-                type: string
-                message: "L'attribut <format> doit etre de type <string> !"
-            - Length: 
-                max: 4
-                maxMessage: "La longueur de l'attribut <format> doit faire au plus {{ limit }} caracteres !"
-            - NotBlank:
-                message: "L'attribut <format> est obligatoire !"
+                message: "L'attribut <listFormat> est obligatoire !"
         mangaChapter:
             - Type:
                 type: GrabMangaBundle\Entity\MangaChapter

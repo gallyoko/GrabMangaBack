@@ -15,12 +15,12 @@ class MangaDownload
     /**
      * @var integer
      */
-    private $currentPageDecode = '0';
+    private $currentPageDecode = 0;
 
     /**
      * @var integer
      */
-    private $currentPagePdf = '0';
+    private $currentPagePdf = 0;
 
     /**
      * @var integer
@@ -28,14 +28,14 @@ class MangaDownload
     private $maxPage;
 
     /**
-     * @var integer
+     * @var boolean
      */
-    private $current = '0';
+    private $current = false;
 
     /**
      * @var boolean
      */
-    private $finished = '0';
+    private $finished = false;
 
     /**
      * @var \GrabMangaBundle\Entity\MangaChapter
@@ -138,7 +138,7 @@ class MangaDownload
     /**
      * Set current
      *
-     * @param integer $current
+     * @param boolean $current
      *
      * @return MangaDownload
      */
@@ -152,7 +152,7 @@ class MangaDownload
     /**
      * Get current
      *
-     * @return integer
+     * @return boolean
      */
     public function getCurrent()
     {
