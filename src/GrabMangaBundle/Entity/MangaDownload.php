@@ -43,6 +43,11 @@ class MangaDownload
     private $mangaChapter;
 
     /**
+     * @var \GrabMangaBundle\Entity\Manga
+     */
+    private $manga;
+
+    /**
      * @var \GrabMangaBundle\Entity\MangaTome
      */
     private $mangaTome;
@@ -205,6 +210,30 @@ class MangaDownload
     public function getMangaChapter()
     {
         return $this->mangaChapter;
+    }
+
+    /**
+     * Set manga
+     *
+     * @param \GrabMangaBundle\Entity\Manga $manga
+     *
+     * @return MangaDownload
+     */
+    public function setManga(\GrabMangaBundle\Entity\Manga $manga = null)
+    {
+        $this->manga = $manga;
+
+        return $this;
+    }
+
+    /**
+     * Get manga
+     *
+     * @return \GrabMangaBundle\Entity\Manga
+     */
+    public function getManga()
+    {
+        return $this->manga;
     }
 
     /**

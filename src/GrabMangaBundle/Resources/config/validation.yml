@@ -106,6 +106,10 @@ GrabMangaBundle\Entity\MangaDownload:
             - Type:
                 type: GrabMangaBundle\Entity\MangaChapter
                 message: "L'attribut <mangaChapter> de type <MangaChapter> est obligatoire !"
+        manga:
+            - Type:
+                type: GrabMangaBundle\Entity\Manga
+                message: "L'attribut <manga> de type <Manga> est obligatoire !"
         mangaTome:
             - Type:
                 type: GrabMangaBundle\Entity\MangaTome

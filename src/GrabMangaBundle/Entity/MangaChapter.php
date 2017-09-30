@@ -139,4 +139,3 @@ class MangaChapter
         return $this->manga;
     }
 }
-

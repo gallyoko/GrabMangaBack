@@ -110,4 +110,3 @@ class Manga
         return $this->synopsis;
     }
 }
-

@@ -11,6 +11,9 @@ GrabMangaBundle\Entity\MangaDownload:
         fk_manga_download_manga_tome1_idx:
             columns:
                 - manga_tome_id
+        fk_manga_download_manga_manga1_idx:
+            columns:
+                - manga_id
     id:
         id:
             type: integer
@@ -60,6 +63,16 @@ GrabMangaBundle\Entity\MangaDownload:
             inversedBy: null
             joinColumns:
                 manga_chapter_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+        manga:
+            targetEntity: Manga
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                manga_id:
                     referencedColumnName: id
             orphanRemoval: false
         mangaTome:

@@ -81,4 +81,3 @@ class MangaTome
         return $this->manga;
     }
 }
-

@@ -81,4 +81,3 @@ class MangaAction
         return $this->maj;
     }
 }
-
