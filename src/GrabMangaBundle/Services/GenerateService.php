@@ -80,6 +80,14 @@ class GenerateService {
                 $this->imageToPdf($pdfFilename);
                 $this->cleanDirectory($this->dirDest);
             }
+            $chapters = $this->serviceMangaChapter->getByMangaWithoutTome($manga);
+            foreach ($chapters as $chapter) {
+                $this->aspireChapter($chapter);
+                $pdfFilename = $this->getPdfChapterName($chapter);
+                $pdfFilenames[] = $pdfFilename;
+                $this->imageToPdf($pdfFilename);
+                $this->cleanDirectory($this->dirDest);
+            }
             $this->serviceMangaDownload->setMaxFileZip(count($pdfFilenames));
             $bookFilename = $this->getBookName($manga);
             $this->compressBook($bookFilename);

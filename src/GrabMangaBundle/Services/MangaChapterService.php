@@ -95,6 +95,20 @@ class MangaChapterService {
         }
     }
 
+    public function getByMangaWithoutTome(Manga $manga) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
+            $mangaChapters = $repo->findBy([
+                "manga" => $manga,
+                "mangaTome" => null,
+            ]);
+
+            return $mangaChapters;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des chapitres sans tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public function getByTome(MangaTome $mangaTome, $json = false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
