@@ -40,8 +40,8 @@ class SynchroMangaCommand extends ContainerAwareCommand
 
     private function launch(OutputInterface $output) {
         try {
-            //$this->containerApp->get('bdd.service')->checkSaveOk();
-            //$this->containerApp->get('bdd.service')->setMangaAction();
+            $this->containerApp->get('bdd.service')->checkSaveOk();
+            $this->containerApp->get('bdd.service')->setMangaAction();
             $bookMangas = $this->containerApp->get('japscan.service')->getMangaTitles();
             foreach ($bookMangas as $bookManga) {
                 try {
