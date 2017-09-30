@@ -28,6 +28,16 @@ class MangaDownload
     private $maxPage;
 
     /**
+     * @var integer
+     */
+    private $currentFileZip = 0;
+
+    /**
+     * @var integer
+     */
+    private $maxFileZip = 0;
+
+    /**
      * @var boolean
      */
     private $current = false;
@@ -138,6 +148,54 @@ class MangaDownload
     public function getMaxPage()
     {
         return $this->maxPage;
+    }
+
+    /**
+     * Set currentFileZip
+     *
+     * @param integer $currentFileZip
+     *
+     * @return MangaDownload
+     */
+    public function setCurrentFileZip($currentFileZip)
+    {
+        $this->currentFileZip = $currentFileZip;
+
+        return $this;
+    }
+
+    /**
+     * Get currentFileZip
+     *
+     * @return integer
+     */
+    public function getCurrentFileZip()
+    {
+        return $this->currentFileZip;
+    }
+
+    /**
+     * Set maxFileZip
+     *
+     * @param integer $maxFileZip
+     *
+     * @return MangaDownload
+     */
+    public function setMaxFileZip($maxFileZip)
+    {
+        $this->maxFileZip = $maxFileZip;
+
+        return $this;
+    }
+
+    /**
+     * Get maxFileZip
+     *
+     * @return integer
+     */
+    public function getMaxFileZip()
+    {
+        return $this->maxFileZip;
     }
 
     /**

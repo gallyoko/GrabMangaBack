@@ -90,6 +90,18 @@ GrabMangaBundle\Entity\MangaDownload:
                 message: "L'attribut <maxPage> doit etre de type <integer> !"
             - NotBlank:
                 message: "L'attribut <maxPage> est obligatoire !"
+        currentFileZip:
+            - Type: 
+                type: integer
+                message: "L'attribut <currentFileZip> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <currentFileZip> est obligatoire !"
+        maxFileZip:
+            - Type: 
+                type: integer
+                message: "L'attribut <maxFileZip> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <maxFileZip> est obligatoire !"
         current:
             - Type: 
                 type: bool

@@ -72,15 +72,18 @@ class GenerateService {
             $this->cleanDirectory($this->dirSrc);
             $this->serviceMangaDownload->tagCurrent();
             $tomes = $this->serviceMangaTome->getByManga($manga);
+            $pdfFilenames = [];
             foreach ($tomes as $tome) {
                 $this->aspireTome($tome);
                 $pdfFilename = $this->getPdfTomeName($tome);
+                $pdfFilenames[] = $pdfFilename;
                 $this->imageToPdf($pdfFilename);
                 $this->cleanDirectory($this->dirDest);
             }
+            $this->serviceMangaDownload->setMaxFileZip(count($pdfFilenames));
             $bookFilename = $this->getBookName($manga);
             $this->compressBook($bookFilename);
-            $this->cleanPdfDirectory();
+            $this->cleanPdfDirectory($pdfFilenames);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
@@ -331,21 +334,16 @@ class GenerateService {
     }
 
     /**
-     * Nettoie  le répertoire PDF
+     * Nettoie  le répertoire PDF pour les pdf fournis
      *
+     * @param array $pdfFilenames
      * @throws \Exception
      */
-    private function cleanPdfDirectory() {
+    private function cleanPdfDirectory($pdfFilenames) {
         try {
-            $elementsToDelete = scandir($this->dirPdf);
-            foreach ($elementsToDelete as $elementToDelete) {
-                if ($elementToDelete != '.' && $elementToDelete != '..') {
-                    $infoFile = new \SplFileInfo($elementToDelete);
-                    if ($infoFile->getExtension() != 'zip' ) {
-                        unlink(
-                            $this->dirPdf . DIRECTORY_SEPARATOR . $elementToDelete);
-                    }
-                }
+            foreach ($pdfFilenames as $pdfFilename) {
+                unlink(
+                    $this->dirPdf . DIRECTORY_SEPARATOR . $pdfFilename);
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
@@ -503,14 +501,18 @@ class GenerateService {
     private function compressBook($bookFilename) {
         try {
             $zip = new \ZipArchive;
-            if ($zip->open($this->dirPdf . DIRECTORY_SEPARATOR . $bookFilename . '.zip') === FALSE) {
+            $realPathPdf = realpath($this->dirPdf);
+            if ($zip->open($realPathPdf . DIRECTORY_SEPARATOR . $bookFilename . '.zip', \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE) === FALSE) {
                 throw new \Exception("Erreur lors de la création du book compressé", 500);
 
             }
-            $elementsToCompress = scandir($this->dirPdf);
+            $numFileZip = 0;
+            $elementsToCompress = scandir($realPathPdf);
             foreach ($elementsToCompress as $elementToCompress) {
                 if ($elementToCompress != '.' && $elementToCompress != '..' && $elementToCompress != $bookFilename . '.zip') {
-                    $zip->addFile($this->dirPdf . DIRECTORY_SEPARATOR . $elementToCompress, basename($elementToCompress));
+                    $zip->addFile($realPathPdf . DIRECTORY_SEPARATOR . $elementToCompress, basename($elementToCompress));
+                    $numFileZip++;
+                    $this->serviceMangaDownload->setCurrentFileZip($numFileZip);
                 }
             }
             $zip->close();

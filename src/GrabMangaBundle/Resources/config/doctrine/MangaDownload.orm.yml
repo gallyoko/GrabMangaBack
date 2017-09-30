@@ -44,6 +44,20 @@ GrabMangaBundle\Entity\MangaDownload:
             options:
                 unsigned: false
             column: max_page
+        currentFileZip:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: current_file_zip
+        maxFileZip:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: max_file_zip
         current:
             type: boolean
             nullable: false

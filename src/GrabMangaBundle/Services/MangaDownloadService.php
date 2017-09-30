@@ -212,4 +212,38 @@ class MangaDownloadService {
         }
     }
 
+    public function setMaxFileZip($num) {
+        try {
+            if (!$this->mangaDownload) {
+                throw new \Exception("Aucun téléchargement en cours", 404);
+            }
+            $this->mangaDownload->setMaxFileZip($num);
+            $errors = $this->validator->validate($this->mangaDownload);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+            }
+            $this->em->merge($this->mangaDownload);
+            $this->em->flush();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de la mise à jour du nombre max de fichier zip : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function setCurrentFileZip($num) {
+        try {
+            if (!$this->mangaDownload) {
+                throw new \Exception("Aucun téléchargement en cours", 404);
+            }
+            $this->mangaDownload->setCurrentFileZip($num);
+            $errors = $this->validator->validate($this->mangaDownload);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+            }
+            $this->em->merge($this->mangaDownload);
+            $this->em->flush();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de la mise à jour du fichier zip en cours : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
 }
