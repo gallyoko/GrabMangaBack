@@ -42,7 +42,7 @@ class MangaController extends Controller
     public function getChaptersAction($mangaId) {
         try {
             $manga = $this->get('manga.service')->getOne($mangaId);
-            return $this->get('manga_chapter.service')->getByManga($manga);
+            return $this->get('manga_chapter.service')->getByManga($manga, true);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }
