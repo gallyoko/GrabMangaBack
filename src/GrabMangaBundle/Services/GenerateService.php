@@ -78,6 +78,9 @@ class GenerateService {
                 $this->imageToPdf($pdfFilename);
                 $this->cleanDirectory($this->dirDest);
             }
+            $bookFilename = $this->getBookName($manga);
+            $this->compressBook($bookFilename);
+            $this->cleanPdfDirectory();
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
@@ -328,6 +331,29 @@ class GenerateService {
     }
 
     /**
+     * Nettoie  le répertoire PDF
+     *
+     * @throws \Exception
+     */
+    private function cleanPdfDirectory() {
+        try {
+            $elementsToDelete = scandir($this->dirPdf);
+            foreach ($elementsToDelete as $elementToDelete) {
+                if ($elementToDelete != '.' && $elementToDelete != '..') {
+                    $infoFile = new \SplFileInfo($elementToDelete);
+                    if ($infoFile->getExtension() != 'zip' ) {
+                        unlink(
+                            $this->dirPdf . DIRECTORY_SEPARATOR . $elementToDelete);
+                    }
+                }
+            }
+            gc_collect_cycles();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors du nettoyage du répertoire : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * Contrôle que les répertoires temporaires existent sinon les crées
      *
      * @throws \Exception
@@ -436,6 +462,60 @@ class GenerateService {
                     ), $chapter->getManga()->getTitle() . '_' . $chapter->getTitle()) . ".pdf";
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de la génération du nom du pdf du chapitre : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Retourne le nom du fichier pour un manga
+     *
+     * @param Manga $manga
+     * @return string
+     * @throws \Exception
+     */
+    private function getBookName(Manga $manga) {
+        try {
+            return str_replace(
+                    array(
+                        ' ',
+                        '"',
+                        ':',
+                        '/',
+                        '?'
+                    ),
+                    array(
+                        '_',
+                        '',
+                        '_',
+                        '.',
+                        '.'
+                    ), $manga->getTitle());
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la génération du nom du pdf du manga : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Compresse le contenu du répertoire PDF au format zip
+     *
+     * @param $bookFilename
+     * @throws \Exception
+     */
+    private function compressBook($bookFilename) {
+        try {
+            $zip = new \ZipArchive;
+            if ($zip->open($this->dirPdf . DIRECTORY_SEPARATOR . $bookFilename . '.zip') === FALSE) {
+                throw new \Exception("Erreur lors de la création du book compressé", 500);
+
+            }
+            $elementsToCompress = scandir($this->dirPdf);
+            foreach ($elementsToCompress as $elementToCompress) {
+                if ($elementToCompress != '.' && $elementToCompress != '..' && $elementToCompress != $bookFilename . '.zip') {
+                    $zip->addFile($this->dirPdf . DIRECTORY_SEPARATOR . $elementToCompress, basename($elementToCompress));
+                }
+            }
+            $zip->close();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la compression du book : ". $ex->getMessage(), $ex->getCode());
         }
     }
 }
