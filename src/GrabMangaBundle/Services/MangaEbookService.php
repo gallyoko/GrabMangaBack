@@ -72,9 +72,8 @@ class MangaEbookService {
                     "mangaChapter" => $mangaChapter,
                 ]);
                 foreach ($mangaEbooks as $mangaEbook) {
-                    echo $mangaEbook->getPageMax();
-                    die;
-                    $count += (int) $mangaEbook->getPageMax();
+                    $listPages = json_decode($mangaEbook->getListPage());
+                    $count += count($listPages);
                 }
             }
             return $count;
@@ -83,7 +82,12 @@ class MangaEbookService {
         }
     }
 
-    private function getOneByMangaChapter(MangaChapter $mangaChapter) {
+    /**
+     * @param MangaChapter $mangaChapter
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getOneByMangaChapter(MangaChapter $mangaChapter) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaEbook');
             $mangaEbook = $repo->findOneBy([

@@ -5,6 +5,7 @@ namespace GrabMangaBundle\Services;
 use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
+use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Generic\BookChapter;
 use GrabMangaBundle\Generic\BookTome;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,7 @@ class MangaChapterService {
 	private $serviceMessage;
     private $serviceMangaEbook;
 
-    public function __construct($doctrine, $validator, $serviceMessage, $serviceMangaEbook) {
+    public function __construct($doctrine, $validator, $serviceMessage, MangaEbookService $serviceMangaEbook) {
         $this->doctrine = $doctrine;
         $this->validator = $validator;
         $this->serviceMessage = $serviceMessage;
@@ -102,6 +103,14 @@ class MangaChapterService {
             return $data;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getEbook(MangaChapter $mangaChapter) {
+        try {
+            return $this->serviceMangaEbook->getOneByMangaChapter($mangaChapter);
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération de l'ebook du chapitre : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -27,10 +27,10 @@ services:
         class: GrabMangaBundle\Services\MangaEbookService
         arguments: [ "@doctrine", "@validator", "@message.service" ]
 
-    download.service:
-        class: GrabMangaBundle\Services\DownloadService
-        arguments: [ "@doctrine", "@validator", "@message.service" ]
+    manga_download.service:
+        class: GrabMangaBundle\Services\MangaDownloadService
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_ebook.service", "@manga_chapter.service" ]
 
     generate.service:
         class: GrabMangaBundle\Services\GenerateService
-        arguments: [ "@doctrine", "@validator", "@message.service" ]
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_download.service", "@manga_chapter.service", "%kernel.root_dir%", "%path%" ]

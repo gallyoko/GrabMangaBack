@@ -1,3 +1,7 @@
 manga:
     type:     rest
     resource: GrabMangaBundle\Controller\MangaController
+
+generate:
+    type:     rest
+    resource: GrabMangaBundle\Controller\GenerateController
