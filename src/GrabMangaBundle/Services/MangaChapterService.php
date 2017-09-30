@@ -5,7 +5,6 @@ namespace GrabMangaBundle\Services;
 use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
-use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Generic\BookChapter;
 use GrabMangaBundle\Generic\BookTome;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,7 +54,7 @@ class MangaChapterService {
                     ->setManga($manga);
                 $errors = $this->validator->validate($mangaChapter);
                 if (count($errors)>0) {
-                    throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                    throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
                 }
                 if ($mangaChapterExist) {
                     $em->merge($mangaChapter);

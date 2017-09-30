@@ -61,7 +61,7 @@ class MangaService {
                 ->setSynopsis($book->getSynopsis());
             $errors = $this->validator->validate($manga);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
             }
             if ($mangaExist) {
                 $em->merge($manga);

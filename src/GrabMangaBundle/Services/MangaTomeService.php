@@ -48,7 +48,7 @@ class MangaTomeService {
                             ->setTitle($bookTome->getTitle());
                         $errors = $this->validator->validate($mangaTome);
                         if (count($errors)>0) {
-                            throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                            throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
                         }
                         $em->persist($mangaTome);
                         $em->flush();

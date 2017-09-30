@@ -70,7 +70,7 @@ class MangaDownloadService {
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
@@ -90,7 +90,7 @@ class MangaDownloadService {
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
@@ -109,7 +109,7 @@ class MangaDownloadService {
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
