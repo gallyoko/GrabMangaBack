@@ -39,19 +39,19 @@ class GenerateService {
             $timestampIn = time();
             $this->serviceMangaDownload->setMangaDownload($download);
             $this->checkDirectories();
-            $this->cleanSrc();
+            $this->cleanDirectory($this->dirSrc);
             $this->serviceMangaDownload->tagCurrent();
             $this->aspireTome($tome);
             $this->getPdfTomeName($tome);
             $pdfFilename = $this->getPdfTomeName($tome);
             $this->imageToPdf($pdfFilename);
-            $this->cleanDest();
+            $this->cleanDirectory($this->dirDest);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
             return ['timeElapsed' => $timestamp];
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur du contrôle des répertoires temporaires : ". $ex->getMessage(), $ex->getCode());
+            throw new \Exception("Erreur de génération du tome : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
@@ -142,68 +142,38 @@ class GenerateService {
     }
 
     /**
-     * Nettoie  le répertoire temporaire source
+     * Nettoie  le répertoire
      *
+     * @param $directory
      * @throws \Exception
      */
-    private function cleanSrc() {
+    private function cleanDirectory($directory) {
         try {
-            $elementsToDelete = scandir($this->dirSrc);
+            $elementsToDelete = scandir($directory);
             foreach ($elementsToDelete as $elementToDelete) {
                 if ($elementToDelete != '.' && $elementToDelete != '..') {
-                    if (is_dir($this->dirSrc . DIRECTORY_SEPARATOR . $elementToDelete)) {
+                    if (is_dir($directory . DIRECTORY_SEPARATOR . $elementToDelete)) {
                         $dirToDelete = scandir(
-                            $this->dirSrc . DIRECTORY_SEPARATOR . $elementToDelete);
+                            $directory . DIRECTORY_SEPARATOR . $elementToDelete);
                         foreach ($dirToDelete as $fileToDelete) {
                             if ($fileToDelete != '.' && $fileToDelete != '..') {
                                 unlink(
-                                    $this->dirSrc . DIRECTORY_SEPARATOR . $elementToDelete .
+                                    $directory . DIRECTORY_SEPARATOR . $elementToDelete .
                                     DIRECTORY_SEPARATOR . $fileToDelete);
                             }
                         }
-                        rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $elementToDelete);
+                        rmdir($directory . DIRECTORY_SEPARATOR . $elementToDelete);
                     } else {
-                        unlink($this->dirSrc . DIRECTORY_SEPARATOR . $elementToDelete);
+                        unlink($directory . DIRECTORY_SEPARATOR . $elementToDelete);
                     }
                 }
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur lors du nettoyage du répertoire temporaire source : ". $ex->getMessage(), $ex->getCode());
+            throw new \Exception("Erreur lors du nettoyage du répertoire : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
-    /**
-     * Nettoie  le répertoire temporaire destination
-     *
-     * @throws \Exception
-     */
-    private function cleanDest() {
-        try {
-            $elementsToDelete = scandir($this->dirDest);
-            foreach ($elementsToDelete as $elementToDelete) {
-                if ($elementToDelete != '.' && $elementToDelete != '..') {
-                    if (is_dir($this->dirDest . DIRECTORY_SEPARATOR . $elementToDelete)) {
-                        $dirToDelete = scandir(
-                            $this->dirDest . DIRECTORY_SEPARATOR . $elementToDelete);
-                        foreach ($dirToDelete as $fileToDelete) {
-                            if ($fileToDelete != '.' && $fileToDelete != '..') {
-                                unlink(
-                                    $this->dirDest . DIRECTORY_SEPARATOR . $elementToDelete .
-                                    DIRECTORY_SEPARATOR . $fileToDelete);
-                            }
-                        }
-                        rmdir($this->dirDest . DIRECTORY_SEPARATOR . $elementToDelete);
-                    } else {
-                        unlink($this->dirDest . DIRECTORY_SEPARATOR . $elementToDelete);
-                    }
-                }
-            }
-            gc_collect_cycles();
-        } catch (\Exception $ex) {
-            throw new \Exception("Erreur lors du nettoyage du répertoire temporaire destination : ". $ex->getMessage(), $ex->getCode());
-        }
-    }
 
     /**
      * Contrôle que les répertoires temporaires existent sinon les crées
