@@ -52,8 +52,7 @@ class GenerateValidatorCommand extends ContainerAwareCommand
             $output->writeln('Erreur lors de la generation des fichiers de description des entites.');
             $output->writeln('Arret du traitement.');
         }
-        // si un dossier doctrine existait déjà et avait donc été sauvegardé
-        // on le renome
+        // si un dossier doctrine existait déjà et avait donc été sauvegaerder
         if ($doctrinePathSave) {
             rename($doctrinePath.'_old', $doctrinePath);
         }
@@ -155,21 +154,21 @@ class GenerateValidatorCommand extends ContainerAwareCommand
                                     fputs($validationYml, '            - Date: '."\n");
                                     fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre au format date"'."\n");
                                 } elseif ($fieldValue=='datetime') {
-                                    fputs($validationYml, '            - DateTime:'."\n");
+                                    fputs($validationYml, '            - DateTime: '."\n");
                                     fputs($validationYml, '                format: "Y-m-d H:i:s"'."\n");
-                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit avoir un format de date <Y-m-d H:i:s>"'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit avoir un format de date '."<".'Y-m-d :i:s'.">".'"'."\n");
                                 } elseif ($fieldValue=='text') {
                                     fputs($validationYml, '            - Type: '."\n");
                                     fputs($validationYml, '                type: string'."\n");
-                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <string> !"'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type '."<".'string'.">".' !"'."\n");
                                 } elseif ($fieldValue=='smallint') {
                                     fputs($validationYml, '            - Type: '."\n");
                                     fputs($validationYml, '                type: integer'."\n");
-                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <integer> !"'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type '."<".'integer'.">".' !"'."\n");
                                 } elseif ($fieldValue=='boolean') {
                                     fputs($validationYml, '            - Type: '."\n");
                                     fputs($validationYml, '                type: bool'."\n");
-                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type <boolean> !"'."\n");
+                                    fputs($validationYml, '                message: "L\'attribut <'.$fieldName.'> doit etre de type '."<".'boolean'.">".' !"'."\n");
                                 } else {
                                     fputs($validationYml, '            - Type: '."\n");
                                     fputs($validationYml, '                type: '.$fieldValue."\n");
