@@ -17,3 +17,9 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret: ThisTokenIsNotSoSecretChangeIt
+
+    path:
+        ebook:
+            src: 'tmp/ebook/src'
+            dst: 'tmp/ebook/dst'
+            pdf: 'tmp/ebook/pdf'
