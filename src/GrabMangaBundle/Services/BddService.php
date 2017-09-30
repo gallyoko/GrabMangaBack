@@ -23,7 +23,6 @@ class BddService {
             $queryDrop = "DROP TABLE IF EXISTS save_manga ;";
             $stmt = $this->em->getConnection()->prepare($queryDrop);
             $stmt->execute();
-            return true;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de suppression des éventuelles tables de sauvegarde : ". $ex->getMessage(), $ex->getCode());
         }
@@ -134,10 +133,8 @@ class BddService {
                               `id` INT(11) NOT NULL AUTO_INCREMENT,
                               `manga_chapter_id` INT(11) NOT NULL,
                               `url_mask` VARCHAR(255) NOT NULL,
-                              `page_min` VARCHAR(255) NOT NULL,
-                              `page_max` VARCHAR(255) NOT NULL,
-                              `page_mask` VARCHAR(255) NOT NULL,
-                              `format` VARCHAR(4) NOT NULL,
+                              `list_page` VARCHAR(4000) NOT NULL,
+                              `list_format` VARCHAR(45) NOT NULL,
                               PRIMARY KEY (`id`),
                               INDEX `fk_save_manga_ebook_manga_chapter1_idx` (`manga_chapter_id` ASC),
                               CONSTRAINT `fk_save_manga_ebook_manga_chapter1`
