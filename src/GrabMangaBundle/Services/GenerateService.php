@@ -34,6 +34,14 @@ class GenerateService {
             $path['ebook']['pdf'];
     }
 
+    /**
+     * Génère un tome au format pdf et retourne le temps écoulé
+     *
+     * @param MangaTome $tome
+     * @param MangaDownload $download
+     * @return array timeElapsed
+     * @throws \Exception
+     */
     public function generateByTome(MangaTome $tome, MangaDownload $download) {
         try {
             set_time_limit(0);
@@ -55,6 +63,12 @@ class GenerateService {
         }
     }
 
+    /**
+     * Télécharge les images du tome
+     *
+     * @param MangaTome $tome
+     * @throws \Exception
+     */
     private function aspireTome(MangaTome $tome) {
         try {
             $chapters = $this->serviceMangaChapter->getByTome($tome);
@@ -76,28 +90,35 @@ class GenerateService {
         }
     }
 
+    /**
+     * récupère et sauvegarde l'image d'une page depuis l'url d'un ebook
+     *
+     * @param MangaEbook $mangaEbook
+     * @param $page
+     */
     private function savePageImage(MangaEbook $mangaEbook, $page) {
         try {
             $formats = json_decode($mangaEbook->getListFormat());
+            $format = $formats[0];
             $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()) .
-                $page .'.'.$formats[0];
+                $page .'.'.$format;
             $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
+                DIRECTORY_SEPARATOR . $page .'.'.$format;
             $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $page .'.'.$formats[0];
-            if (strtolower($formats[0]) == 'jpg') {
+                DIRECTORY_SEPARATOR . $page .'.'.$format;
+            if (strtolower($format) == 'jpg') {
                 $current = imagecreatefromjpeg($url);
-            } elseif (strtolower($formats[0]) == 'png') {
+            } elseif (strtolower($format) == 'png') {
                 $current = imagecreatefrompng($url);
-            } elseif (strtolower($formats[0]) == 'gif') {
+            } elseif (strtolower($format) == 'gif') {
                 $current = imagecreatefromgif($url);
             }
             if ($current) {
-                if (strtolower($formats[0]) == 'jpg') {
+                if (strtolower($format) == 'jpg') {
                     imagejpeg($current, $fileTmp);
-                } elseif (strtolower($formats[0]) == 'png') {
+                } elseif (strtolower($format) == 'png') {
                     imagepng($current, $fileTmp);
-                } elseif (strtolower($formats[0]) == 'gif') {
+                } elseif (strtolower($format) == 'gif') {
                     imagegif($current, $fileTmp);
                 }
                 imagedestroy($current);
@@ -109,6 +130,12 @@ class GenerateService {
         }
     }
 
+    /**
+     * Conversion de l'ensemble des images du répertoire de destination en un fichier pdf
+     *
+     * @param $pdfName
+     * @throws \Exception
+     */
     private function imageToPdf($pdfName) {
         try {
             $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -189,7 +216,6 @@ class GenerateService {
         }
     }
 
-
     /**
      * Contrôle que les répertoires temporaires existent sinon les crées
      *
@@ -244,6 +270,13 @@ class GenerateService {
         }
     }
 
+    /**
+     * Retourne le nom du fichier pdf pour un tome
+     *
+     * @param MangaTome $tome
+     * @return string
+     * @throws \Exception
+     */
     private function getPdfTomeName(MangaTome $tome) {
         try {
             return str_replace(
