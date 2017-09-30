@@ -3,7 +3,9 @@
 namespace GrabMangaBundle\Services;
 
 use Symfony\Component\HttpFoundation\Response;
+use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaTome;
+use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaDownload;
 
 class MangaDownloadService {
@@ -58,7 +60,27 @@ class MangaDownloadService {
         }
     }
 
-    public function save(MangaTome $mangaTome) {
+    public function saveBook(Manga $manga) {
+        try {
+            $mangaDownload = new MangaDownload();
+            $mangaChapters = $this->serviceMangaChapter->getByManga($manga);
+            $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters($mangaChapters);
+            $mangaDownload->setManga($manga)
+                ->setUser($this->user)
+                ->setMaxPage($maxPages);
+            $errors = $this->validator->validate($mangaDownload);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+            }
+            $this->em->persist($mangaDownload);
+            $this->em->flush();
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur d'insertion du téléchargement book : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function saveTome(MangaTome $mangaTome) {
         try {
             $mangaDownload = new MangaDownload();
             $mangaChapters = $this->serviceMangaChapter->getByTome($mangaTome);
@@ -74,7 +96,26 @@ class MangaDownloadService {
             $this->em->flush();
             return $mangaDownload;
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur d'insertion du téléchargement manga : ". $ex->getMessage(), $ex->getCode());
+            throw new \Exception("Erreur d'insertion du téléchargement tome : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function saveChapter(MangaChapter $mangaChapter) {
+        try {
+            $mangaDownload = new MangaDownload();
+            $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters([$mangaChapter]);
+            $mangaDownload->setMangaChapter($mangaChapter)
+                ->setUser($this->user)
+                ->setMaxPage($maxPages);
+            $errors = $this->validator->validate($mangaDownload);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors));
+            }
+            $this->em->persist($mangaDownload);
+            $this->em->flush();
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur d'insertion du téléchargement chapitre : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
@@ -130,6 +171,17 @@ class MangaDownloadService {
         }
     }
 
+    public function getCurrentPageDecode() {
+        try {
+            if (!$this->mangaDownload) {
+                throw new \Exception("Aucun téléchargement en cours", 404);
+            }
+            return $this->mangaDownload->getCurrentPageDecode();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de la récupération de la page décodée en cours : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function setCurrentPagePdf($num) {
         try {
             if (!$this->mangaDownload) {
@@ -144,6 +196,17 @@ class MangaDownloadService {
             $this->em->flush();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de la mise à jour de la page pdf en cours : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function getCurrentPagePdf() {
+        try {
+            if (!$this->mangaDownload) {
+                throw new \Exception("Aucun téléchargement en cours", 404);
+            }
+            return $this->mangaDownload->getCurrentPagePdf();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de la récupération de la page pdf en cours : ". $ex->getMessage(), $ex->getCode());
         }
     }
 

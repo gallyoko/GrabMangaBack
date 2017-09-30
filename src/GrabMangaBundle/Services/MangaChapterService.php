@@ -24,6 +24,19 @@ class MangaChapterService {
         $this->serviceMangaEbook = $serviceMangaEbook;
     }
 
+    public function getOne($id) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
+            $mangaChapter = $repo->find($id);
+            if(!$mangaChapter) {
+                throw new \Exception("Aucun Chapitre.", Response::HTTP_NOT_FOUND);
+            }
+            return $mangaChapter;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur du chapitre : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function add(Manga $manga, BookTome $bookTome, MangaTome $mangaTome = null) {
         try {
             $em = $this->doctrine->getManager();
@@ -63,22 +76,23 @@ class MangaChapterService {
             $mangaChapters = $repo->findBy([
                 "manga" => $manga,
             ]);
-            $data = [];
-            foreach ($mangaChapters as $mangaChapter) {
-                if ($json) {
+            if ($json) {
+                $data = [];
+                foreach ($mangaChapters as $mangaChapter) {
                     $data[] = [
                         "id" => $mangaChapter->getId(),
                         "title" => $mangaChapter->getTitle(),
                         "url" => $mangaChapter->getUrl(),
                         "tomeId" => $mangaChapter->getMangaTome()->getId(),
                     ];
-                } else {
-                    $data[] = $mangaChapter;
                 }
+            } else {
+                $data = $mangaChapters;
             }
+
             return $data;
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new \Exception("Erreur de récupération des chapitres du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,21 +102,23 @@ class MangaChapterService {
             $mangaChapters = $repo->findBy([
                 "mangaTome" => $mangaTome,
             ]);
-            $data = [];
-            foreach ($mangaChapters as $mangaChapter) {
-                if ($json) {
+            if ($json) {
+                $data = [];
+                foreach ($mangaChapters as $mangaChapter) {
                     $data[] = [
                         "id" => $mangaChapter->getId(),
                         "title" => $mangaChapter->getTitle(),
                         "url" => $mangaChapter->getUrl(),
+                        "tomeId" => $mangaChapter->getMangaTome()->getId(),
                     ];
-                } else {
-                    $data[] = $mangaChapter;
                 }
+            } else {
+                $data = $mangaChapters;
             }
+
             return $data;
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new \Exception("Erreur de récupération des chapitres du tome : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

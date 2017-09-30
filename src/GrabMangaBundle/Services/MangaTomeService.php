@@ -61,19 +61,24 @@ class MangaTomeService {
         }
     }
 
-    public function getByManga(Manga $manga) {
+    public function getByManga(Manga $manga, $json = false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
             $mangaTomes = $repo->findBy([
                 "manga" => $manga,
             ]);
-            $data = [];
-            foreach ($mangaTomes as $mangaTome) {
-                $data[] = [
-                    "id" => $mangaTome->getId(),
-                    "title" => $mangaTome->getTitle(),
-                ];
+            if ($json) {
+                $data = [];
+                foreach ($mangaTomes as $mangaTome) {
+                    $data[] = [
+                        "id" => $mangaTome->getId(),
+                        "title" => $mangaTome->getTitle(),
+                    ];
+                }
+            } else {
+                $data = $mangaTomes;
             }
+
             return $data;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);

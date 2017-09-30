@@ -1,6 +1,7 @@
 <?php
 namespace GrabMangaBundle\Services;
 
+use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
@@ -16,6 +17,7 @@ class GenerateService {
     private $validator;
     private $serviceMessage;
     private $serviceMangaDownload;
+    private $serviceMangaTome;
     private $serviceMangaChapter;
     private $dirSrc;
     private $dirDest;
@@ -28,17 +30,20 @@ class GenerateService {
      * @param $validator
      * @param MessageService $serviceMessage
      * @param MangaDownloadService $serviceMangaDownload
+     * @param MangaTomeService $serviceMangaTome
      * @param MangaChapterService $serviceMangaChapter
      * @param $rootDir
      * @param $path
      */
     public function __construct($doctrine, $validator, MessageService $serviceMessage,
                                 MangaDownloadService $serviceMangaDownload,
+                                MangaTomeService $serviceMangaTome,
                                 MangaChapterService $serviceMangaChapter, $rootDir, $path) {
         $this->doctrine = $doctrine;
         $this->em = $doctrine->getManager();
         $this->validator = $validator;
         $this->serviceMangaDownload = $serviceMangaDownload;
+        $this->serviceMangaTome = $serviceMangaTome;
         $this->serviceMangaChapter = $serviceMangaChapter;
         $this->serviceMessage = $serviceMessage;
         $this->dirSrc = $rootDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.
@@ -47,6 +52,39 @@ class GenerateService {
             $path['ebook']['dst'];
         $this->dirPdf = $rootDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.
             $path['ebook']['pdf'];
+    }
+
+    /**
+     * Génère un book au format pdf et retourne le temps écoulé.
+     * Met à jour l'état du téléchargement
+     *
+     * @param Manga $manga
+     * @param MangaDownload $download
+     * @return array timeElapsed
+     * @throws \Exception
+     */
+    public function generateByBook(Manga $manga, MangaDownload $download) {
+        try {
+            set_time_limit(0);
+            $timestampIn = time();
+            $this->serviceMangaDownload->setMangaDownload($download);
+            $this->checkDirectories();
+            $this->cleanDirectory($this->dirSrc);
+            $this->serviceMangaDownload->tagCurrent();
+            $tomes = $this->serviceMangaTome->getByManga($manga);
+            foreach ($tomes as $tome) {
+                $this->aspireTome($tome);
+                $pdfFilename = $this->getPdfTomeName($tome);
+                $this->imageToPdf($pdfFilename);
+                $this->cleanDirectory($this->dirDest);
+            }
+            $this->serviceMangaDownload->tagFinished();
+            gc_collect_cycles();
+            $timestamp = time() - $timestampIn;
+            return ['timeElapsed' => $timestamp];
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de génération du book : ". $ex->getMessage(), $ex->getCode());
+        }
     }
 
     /**
@@ -80,7 +118,38 @@ class GenerateService {
     }
 
     /**
+     * Génère un chapitre au format pdf et retourne le temps écoulé.
+     * Met à jour l'état du téléchargement
+     *
+     * @param MangaChapter $chapter
+     * @param MangaDownload $download
+     * @return array timeElapsed
+     * @throws \Exception
+     */
+    public function generateByChapter(MangaChapter $chapter, MangaDownload $download) {
+        try {
+            set_time_limit(0);
+            $timestampIn = time();
+            $this->serviceMangaDownload->setMangaDownload($download);
+            $this->checkDirectories();
+            $this->cleanDirectory($this->dirSrc);
+            $this->serviceMangaDownload->tagCurrent();
+            $this->aspireChapter($chapter);
+            $pdfFilename = $this->getPdfChapterName($chapter);
+            $this->imageToPdf($pdfFilename);
+            $this->cleanDirectory($this->dirDest);
+            $this->serviceMangaDownload->tagFinished();
+            gc_collect_cycles();
+            $timestamp = time() - $timestampIn;
+            return ['timeElapsed' => $timestamp];
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de génération du chapitre : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * Télécharge les images du tome
+     * Met à jour l'état du téléchargement
      *
      * @param MangaTome $tome
      * @throws \Exception
@@ -88,7 +157,7 @@ class GenerateService {
     private function aspireTome(MangaTome $tome) {
         try {
             $chapters = $this->serviceMangaChapter->getByTome($tome);
-            $numPageDecode = 0;
+            $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
             foreach ($chapters as $chapter) {
                 $this->checkChapterDirectories($chapter);
                 $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
@@ -103,6 +172,31 @@ class GenerateService {
             gc_collect_cycles();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de l'aspiration du tome : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Télécharge les images du chapitre
+     * Met à jour l'état du téléchargement
+     *
+     * @param MangaChapter $chapter
+     * @throws \Exception
+     */
+    private function aspireChapter(MangaChapter $chapter) {
+        try {
+            $this->checkChapterDirectories($chapter);
+            $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
+            $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
+            $pages = json_decode($mangaEbook->getListPage());
+            foreach ($pages as $page) {
+                $this->savePageImage($mangaEbook, $page);
+                $numPageDecode ++;
+                $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
+            }
+            rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
+            gc_collect_cycles();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de l'aspiration du chapitre : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
@@ -148,6 +242,7 @@ class GenerateService {
 
     /**
      * Conversion de l'ensemble des images du répertoire de destination en un fichier pdf
+     * Met à jour l'état du téléchargement
      *
      * @param $pdfName
      * @throws \Exception
@@ -156,7 +251,7 @@ class GenerateService {
         try {
             $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
             $pdf->SetAutoPageBreak(false, 0);
-            $numImage = 1;
+            $numImage = $this->serviceMangaDownload->getCurrentPagePdf();
             $directories = scandir($this->dirDest);
             foreach ($directories as $directory) {
                 if ($directory != '.' && $directory != '..') {
@@ -311,9 +406,36 @@ class GenerateService {
                     '.'
                 ), $tome->getManga()->getTitle() . '_' . $tome->getTitle()) . ".pdf";
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur lors de la génération du nom du pdf : ". $ex->getMessage(), $ex->getCode());
+            throw new \Exception("Erreur lors de la génération du nom du pdf du tome : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
-
+    /**
+     * Retourne le nom du fichier pdf pour un chapitre
+     *
+     * @param MangaChapter $chapter
+     * @return string
+     * @throws \Exception
+     */
+    private function getPdfChapterName(MangaChapter $chapter) {
+        try {
+            return str_replace(
+                    array(
+                        ' ',
+                        '"',
+                        ':',
+                        '/',
+                        '?'
+                    ),
+                    array(
+                        '_',
+                        '',
+                        '_',
+                        '.',
+                        '.'
+                    ), $chapter->getManga()->getTitle() . '_' . $chapter->getTitle()) . ".pdf";
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la génération du nom du pdf du chapitre : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
 }

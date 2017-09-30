@@ -33,4 +33,4 @@ services:
 
     generate.service:
         class: GrabMangaBundle\Services\GenerateService
-        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_download.service", "@manga_chapter.service", "%kernel.root_dir%", "%path%" ]
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_download.service", "@manga_tome.service", "@manga_chapter.service", "%kernel.root_dir%", "%path%" ]
