@@ -36,6 +36,19 @@ class MangaChapterService {
         }
     }
 
+    public function getList() {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
+            $mangaChapters = $repo->findAll();
+            if(count($mangaChapters)==0) {
+                throw new \Exception("Aucun Chapitre.", Response::HTTP_NOT_FOUND);
+            }
+            return $mangaChapters;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de recuperation des chapitres : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     public function add(Manga $manga, BookTome $bookTome, MangaTome $mangaTome = null) {
         try {
             $em = $this->doctrine->getManager();
@@ -61,9 +74,8 @@ class MangaChapterService {
                 } else {
                     $em->persist($mangaChapter);
                 }
-                $em->flush();
-                $this->serviceMangaEbook->add($mangaChapter, $bookChapter->getBookEbook());
             }
+            $em->flush();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement d'un chapitre d'un tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

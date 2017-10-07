@@ -3,6 +3,10 @@ services:
         class: GrabMangaBundle\Services\MessageService
         arguments: [ ]
 
+    security.service:
+        class: GrabMangaBundle\Services\SecurityService
+        arguments: [ "@doctrine", "@validator", "@message.service" ]
+
     japscan.service:
         class: GrabMangaBundle\Services\JapscanService
         arguments: [ ]
@@ -25,6 +29,10 @@ services:
 
     manga_ebook.service:
         class: GrabMangaBundle\Services\MangaEbookService
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_page.service" ]
+
+    manga_page.service:
+        class: GrabMangaBundle\Services\MangaPageService
         arguments: [ "@doctrine", "@validator", "@message.service" ]
 
     manga_download.service:
@@ -33,4 +41,4 @@ services:
 
     generate.service:
         class: GrabMangaBundle\Services\GenerateService
-        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_download.service", "@manga_tome.service", "@manga_chapter.service", "%kernel.root_dir%", "%path%" ]
+        arguments: [ "@doctrine", "@validator", "@message.service", "@manga_download.service", "@manga_tome.service", "@manga_chapter.service", "@manga_ebook.service", "%kernel.root_dir%", "%path%" ]

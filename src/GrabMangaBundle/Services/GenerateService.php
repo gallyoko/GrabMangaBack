@@ -2,6 +2,7 @@
 namespace GrabMangaBundle\Services;
 
 use GrabMangaBundle\Entity\Manga;
+use GrabMangaBundle\Entity\MangaPage;
 use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
@@ -19,6 +20,7 @@ class GenerateService {
     private $serviceMangaDownload;
     private $serviceMangaTome;
     private $serviceMangaChapter;
+    private $serviceMangaEbook;
     private $dirSrc;
     private $dirDest;
     private $dirPdf;
@@ -32,19 +34,22 @@ class GenerateService {
      * @param MangaDownloadService $serviceMangaDownload
      * @param MangaTomeService $serviceMangaTome
      * @param MangaChapterService $serviceMangaChapter
+     * @param MangaEbookService $serviceMangaEbook
      * @param $rootDir
      * @param $path
      */
     public function __construct($doctrine, $validator, MessageService $serviceMessage,
                                 MangaDownloadService $serviceMangaDownload,
                                 MangaTomeService $serviceMangaTome,
-                                MangaChapterService $serviceMangaChapter, $rootDir, $path) {
+                                MangaChapterService $serviceMangaChapter,
+                                MangaEbookService $serviceMangaEbook, $rootDir, $path) {
         $this->doctrine = $doctrine;
         $this->em = $doctrine->getManager();
         $this->validator = $validator;
         $this->serviceMangaDownload = $serviceMangaDownload;
         $this->serviceMangaTome = $serviceMangaTome;
         $this->serviceMangaChapter = $serviceMangaChapter;
+        $this->serviceMangaEbook = $serviceMangaEbook;
         $this->serviceMessage = $serviceMessage;
         $this->dirSrc = $rootDir.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.
             $path['ebook']['src'];
@@ -175,9 +180,9 @@ class GenerateService {
             foreach ($chapters as $chapter) {
                 $this->checkChapterDirectories($chapter);
                 $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
-                $pages = json_decode($mangaEbook->getListPage());
-                foreach ($pages as $page) {
-                    $this->savePageImage($mangaEbook, $page);
+                $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
+                foreach ($mangaPages as $mangaPage) {
+                    $this->savePageImage($mangaEbook, $mangaPage);
                     $numPageDecode ++;
                     $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
                 }
@@ -201,9 +206,9 @@ class GenerateService {
             $this->checkChapterDirectories($chapter);
             $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
             $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
-            $pages = json_decode($mangaEbook->getListPage());
-            foreach ($pages as $page) {
-                $this->savePageImage($mangaEbook, $page);
+            $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
+            foreach ($mangaPages as $mangaPage) {
+                $this->savePageImage($mangaEbook, $mangaPage);
                 $numPageDecode ++;
                 $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
             }
@@ -218,31 +223,29 @@ class GenerateService {
      * récupère et sauvegarde l'image d'une page depuis l'url d'un ebook
      *
      * @param MangaEbook $mangaEbook
-     * @param $page
+     * @param MangaPage $mangaPage
      */
-    private function savePageImage(MangaEbook $mangaEbook, $page) {
+    private function savePageImage(MangaEbook $mangaEbook, MangaPage $mangaPage) {
         try {
-            $formats = json_decode($mangaEbook->getListFormat());
-            $format = $formats[0];
-            $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()) .
-                $page .'.'.$format;
+            $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()).$mangaPage->getPage();
             $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $page .'.'.$format;
+                DIRECTORY_SEPARATOR . $mangaPage->getPage();
             $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $page .'.'.$format;
-            if (strtolower($format) == 'jpg') {
+                DIRECTORY_SEPARATOR . $mangaPage->getPage();
+            $pageInfo = new \SplFileInfo($mangaPage->getPage());
+            if (strtolower($pageInfo->getExtension()) == 'jpg') {
                 $current = imagecreatefromjpeg($url);
-            } elseif (strtolower($format) == 'png') {
+            } elseif (strtolower($pageInfo->getExtension()) == 'png') {
                 $current = imagecreatefrompng($url);
-            } elseif (strtolower($format) == 'gif') {
+            } elseif (strtolower($pageInfo->getExtension()) == 'gif') {
                 $current = imagecreatefromgif($url);
             }
             if ($current) {
-                if (strtolower($format) == 'jpg') {
+                if (strtolower($pageInfo->getExtension()) == 'jpg') {
                     imagejpeg($current, $fileTmp);
-                } elseif (strtolower($format) == 'png') {
+                } elseif (strtolower($pageInfo->getExtension()) == 'png') {
                     imagepng($current, $fileTmp);
-                } elseif (strtolower($format) == 'gif') {
+                } elseif (strtolower($pageInfo->getExtension()) == 'gif') {
                     imagegif($current, $fileTmp);
                 }
                 imagedestroy($current);

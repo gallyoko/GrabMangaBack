@@ -13,13 +13,21 @@ class MangaEbookService {
 	private $doctrine;
 	private $validator;
 	private $serviceMessage;
+	private $serviceMangaPage;
 
-    public function __construct($doctrine, $validator, $serviceMessage) {
+    public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaPageService $serviceMangaPage) {
         $this->doctrine = $doctrine;
         $this->validator = $validator;
         $this->serviceMessage = $serviceMessage;
+        $this->serviceMangaPage = $serviceMangaPage;
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
     public function getOne($id) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaEbook');
@@ -33,6 +41,11 @@ class MangaEbookService {
         }
     }
 
+    /**
+     * @param MangaChapter $mangaChapter
+     * @param BookEbook|null $bookEbook
+     * @throws \Exception
+     */
     public function add(MangaChapter $mangaChapter, BookEbook $bookEbook = null) {
         try {
             if ($bookEbook) {
@@ -44,25 +57,30 @@ class MangaEbookService {
                 } else {
                     $mangaEbook = new MangaEbook();
                 }
-                $mangaEbook->setListPage(json_encode($bookEbook->getListPage()))
-                    ->setUrlMask($bookEbook->getUrlMask())
-                    ->setMangaChapter($mangaChapter)
-                    ->setListFormat(json_encode($bookEbook->getListFormat()));
+                $mangaEbook->setUrlMask($bookEbook->getUrlMask())
+                    ->setMangaChapter($mangaChapter);
                 $errors = $this->validator->validate($mangaEbook);
-                if (count($errors)==0) {
-                    if ($mangaEbookExist) {
-                        $em->merge($mangaEbook);
-                    } else {
-                        $em->persist($mangaEbook);
-                    }
-                    $em->flush();
+                if (count($errors)>0) {
+                    throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
                 }
+                if ($mangaEbookExist) {
+                    $em->merge($mangaEbook);
+                } else {
+                    $em->persist($mangaEbook);
+                }
+                $em->flush();
+                $this->serviceMangaPage->add($mangaEbook, $bookEbook->getBookPages());
             }
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de l'ajout du ebook manga : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
+    /**
+     * @param $mangaChapters
+     * @return int
+     * @throws \Exception
+     */
     public function getCountPageByChapters($mangaChapters) {
         try {
             $count = 0;
@@ -72,8 +90,8 @@ class MangaEbookService {
                     "mangaChapter" => $mangaChapter,
                 ]);
                 foreach ($mangaEbooks as $mangaEbook) {
-                    $listPages = json_decode($mangaEbook->getListPage());
-                    $count += count($listPages);
+                    $mangaPages = $this->serviceMangaPage->getByMangaEbook($mangaEbook);
+                    $count += count($mangaPages);
                 }
             }
             return $count;
@@ -94,6 +112,14 @@ class MangaEbookService {
                 "mangaChapter" => $mangaChapter,
             ]);
             return $mangaEbook;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du ebook manga : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function getMangaPages(MangaEbook $mangaEbook) {
+        try {
+            return $this->serviceMangaPage->getByMangaEbook($mangaEbook);
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération du ebook manga : ". $ex->getMessage(), $ex->getCode());
         }

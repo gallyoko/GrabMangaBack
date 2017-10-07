@@ -6,6 +6,7 @@ use GrabMangaBundle\Generic\Book;
 use GrabMangaBundle\Generic\BookTome;
 use GrabMangaBundle\Generic\BookChapter;
 use GrabMangaBundle\Generic\BookEbook;
+use GrabMangaBundle\Generic\BookPage;
 
 class JapscanService {
 	
@@ -54,9 +55,9 @@ class JapscanService {
      * @return Book
      * @throws \Exception
      */
-    public function setTomeAndChapter(Book $book) {
+    public function setSynopsis(Book $book) {
         try {
-            $tomes = [];
+            $synopsis = '';
             try {
                 $flux = file_get_contents($book->getUrl());
             } catch (\Exception $ex) {
@@ -65,13 +66,42 @@ class JapscanService {
             if ($flux !== false) {
                 $partSearchBegin = '<h2 class="bg-header">Liste Des Chapitres</h2>' . "\n" .
                     '<div id="liste_chapitres">';
-                list ($partSynopis, $partChapterAndTomeList) = explode($partSearchBegin, $flux);
-                // synopsys
+                list ($partSynopis, $drop) = explode($partSearchBegin, $flux);
+                unset($drop);
+                // synopsis
                 if (strstr($partSynopis, '<div id="synopsis">') !== false) {
                     list ($drop, $synopsisToClean) = explode('<div id="synopsis">', $partSynopis);
+                    unset($drop);
                     $synopsis = str_replace('"', '', trim(str_replace('</div>', '', $synopsisToClean)));
-                    $book->setSynopsis($synopsis);
                 }
+            }
+            $book->setSynopsis($synopsis);
+            return $book;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du synopsis du manga depuis Japscan " .
+                "(".__METHOD__." ligne".$ex->getLine().") :" .
+                $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $url
+     * @return array
+     * @throws \Exception
+     */
+    public function getTomeAndChapter($url) {
+        try {
+            $tomes = [];
+            try {
+                $flux = file_get_contents($url);
+            } catch (\Exception $ex) {
+                $flux = false;
+            }
+            if ($flux !== false) {
+                $partSearchBegin = '<h2 class="bg-header">Liste Des Chapitres</h2>' . "\n" .
+                    '<div id="liste_chapitres">';
+                list ($drop, $partChapterAndTomeList) = explode($partSearchBegin, $flux);
+                unset($drop);
                 $partSearchEnd = '</a>' . "\n" . '</li>' . "\n" . '</ul>';
                 $chapterAndTomeList = explode($partSearchEnd, $partChapterAndTomeList);
                 foreach ($chapterAndTomeList as $chapterAndTome) {
@@ -101,11 +131,7 @@ class JapscanService {
                                     $chapter = new BookChapter();
                                     $chapter->setTitle($titleChapter)
                                         ->setUrl($urlChapter);
-                                    $ebook = $this->getEbook($chapter);
-                                    if ($ebook) {
-                                        $chapter->setBookEbook($ebook);
-                                        $chapters[] = $chapter;
-                                    }
+                                    $chapters[] = $chapter;
                                 }
                             }
                         }
@@ -116,8 +142,7 @@ class JapscanService {
                     }
                 }
             }
-            $book->setBookTomes($tomes);
-            return $book;
+            return $tomes;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des tomes et chapitres du manga depuis Japscan " .
                 "(".__METHOD__." ligne".$ex->getLine().") :" .
@@ -126,15 +151,15 @@ class JapscanService {
     }
 
     /**
-     * @param BookChapter $bookChapter
+     * @param $url
      * @return BookEbook|null
      * @throws \Exception
      */
-    private function getEbook(BookChapter $bookChapter) {
+    public function getEbook($url) {
         try {
             $bookEbook = null;
             try {
-                $fluxToClean = file_get_contents($bookChapter->getUrl());
+                $fluxToClean = file_get_contents($url);
             } catch (\Exception $ex) {
                 $fluxToClean = false;
             }
@@ -148,22 +173,19 @@ class JapscanService {
                     list ($pageListToClean) = explode($partSearchEnd, trim($partPages));
                     $pageList = explode('data-img="', trim($pageListToClean));
                     $nbPage = 0;
-                    $listPage = [];
-                    $listFormat = [];
+                    $bookPages = [];
                     foreach ($pageList as $pageToClean) {
                         $pageInfo = explode('" value="', trim($pageToClean));
                         if (count($pageInfo) > 1) {
-                            list ($page) = $pageInfo;
+                            list ($pageToTrim) = $pageInfo;
+                            $page = trim($pageToTrim);
                             if ($nbPage == 0) {
                                 $pageMinFind = $page;
                             }
                             $pageMaxFind = $page;
-                            $infoPage = new \SplFileInfo($page);
-                            $extension = $infoPage->getExtension();
-                            if ( ! in_array($extension, $listFormat) ) {
-                                $listFormat[] = $extension;
-                            }
-                            $listPage[] = str_replace('.'.$extension, '', $page);
+                            $bookPage = new BookPage();
+                            $bookPage->setPage($page);
+                            $bookPages[] = $bookPage;
                             $nbPage ++;
                         }
                     }
@@ -177,12 +199,14 @@ class JapscanService {
                             if (strstr($pageMask, '__PAGE__') !== false) {
                                 list ($drop, $baseUrlToClean) = explode(
                                     '<select name="mangas" id="mangas" ', trim($partBaseUrl));
+                                unset($drop);
                                 list ($dataUrlNomToClean, $drop, $dataUrlTomeToClean) = explode(
                                     '" data-uri="', trim($baseUrlToClean));
                                 $dataUrlNom = trim(str_replace('data-nom="', '', trim($dataUrlNomToClean)));
                                 if (strstr($dataUrlTomeToClean, '" data-nom="') !== false) {
                                     list ($drop, $dataUrlTomeToCleanTmp) = explode('" data-nom="',
                                         trim($dataUrlTomeToClean));
+                                    unset($drop);
                                     $dataUrlTome = trim(
                                         str_replace('"></select>', '', trim($dataUrlTomeToCleanTmp)));
                                 } else {
@@ -193,8 +217,7 @@ class JapscanService {
                                     $dataUrlTome . '/';
                                 $bookEbook = new BookEbook();
                                 $bookEbook->setUrlMask($urlMask)
-                                    ->setListPage($listPage)
-                                    ->setListFormat($listFormat);
+                                    ->setBookPages($bookPages);
                             }
                         }
                     }

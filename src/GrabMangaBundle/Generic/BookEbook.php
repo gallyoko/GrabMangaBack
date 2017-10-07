@@ -13,14 +13,9 @@ class BookEbook
     private $urlMask;
 
     /**
-     * @var string
+     * @var \GrabMangaBundle\Generic\BookPage []
      */
-    private $listPage;
-
-    /**
-     * @var string
-     */
-    private $listFormat;
+    private $bookPages = [];
 
 
     /**
@@ -48,52 +43,27 @@ class BookEbook
     }
 
     /**
-     * Set listPage
+     * Set bookPages
      *
-     * @param string $listPage
+     * @param \GrabMangaBundle\Generic\BookPage[] $bookPages
      *
      * @return BookEbook
      */
-    public function setListPage($listPage)
+    public function setBookPages($bookPages = [])
     {
-        $this->listPage = $listPage;
+        $this->bookPages = $bookPages;
 
         return $this;
     }
 
     /**
-     * Get listPage
+     * Get bookPages
      *
-     * @return string
+     * @return \GrabMangaBundle\Generic\BookPage[]
      */
-    public function getListPage()
+    public function getBookPages()
     {
-        return $this->listPage;
+        return $this->bookPages;
     }
-
-    /**
-     * Set listFormat
-     *
-     * @param string $listFormat
-     *
-     * @return BookEbook
-     */
-    public function setListFormat($listFormat)
-    {
-        $this->listFormat = $listFormat;
-
-        return $this;
-    }
-
-    /**
-     * Get listFormat
-     *
-     * @return string
-     */
-    public function getListFormat()
-    {
-        return $this->listFormat;
-    }
-
 }
 

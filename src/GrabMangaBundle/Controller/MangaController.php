@@ -3,6 +3,7 @@
 namespace GrabMangaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -10,6 +11,20 @@ use FOS\RestBundle\View\View;
 
 class MangaController extends Controller
 {
+    public function setContainer(ContainerInterface $container = null) {
+        try {
+            $this->container = $container;
+            $request = $container->get('request_stack')->getCurrentRequest();
+            if (!$request->attributes->has('token')) {
+                throw new \Exception("Erreur de token", Response::HTTP_UNAUTHORIZED);
+            }
+            $token = $request->attributes->get('token');
+        } catch (\Exception $ex) {
+            throw new \Exception("Alerte sécurité : ".$ex->getMessage(), $ex->getCode());
+        }
+
+    }
+
     /**
      * @Rest\View()
      * @Rest\Get("/mangas")
@@ -24,7 +39,7 @@ class MangaController extends Controller
 
     /**
      * @Rest\View()
-     * @Rest\Get("/manga/tomes/{mangaId}")
+     * @Rest\Get("/manga/tomes/{token}/{mangaId}")
      */
     public function getTomesAction($mangaId) {
         try {

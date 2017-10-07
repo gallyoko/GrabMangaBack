@@ -142,24 +142,6 @@ GrabMangaBundle\Entity\MangaEbook:
                 maxMessage: "La longueur de l'attribut <urlMask> doit faire au plus {{ limit }} caracteres !"
             - NotBlank:
                 message: "L'attribut <urlMask> est obligatoire !"
-        listPage:
-            - Type: 
-                type: string
-                message: "L'attribut <listPage> doit etre de type <string> !"
-            - Length: 
-                max: 4000
-                maxMessage: "La longueur de l'attribut <listPage> doit faire au plus {{ limit }} caracteres !"
-            - NotBlank:
-                message: "L'attribut <listPage> est obligatoire !"
-        listFormat:
-            - Type: 
-                type: string
-                message: "L'attribut <listFormat> doit etre de type <string> !"
-            - Length: 
-                max: 45
-                maxMessage: "La longueur de l'attribut <listFormat> doit faire au plus {{ limit }} caracteres !"
-            - NotBlank:
-                message: "L'attribut <listFormat> est obligatoire !"
         mangaChapter:
             - Type:
                 type: GrabMangaBundle\Entity\MangaChapter
@@ -201,6 +183,22 @@ GrabMangaBundle\Entity\MangaMaj:
             - NotBlank:
                 message: "L'attribut <filename> est obligatoire !"
 
+GrabMangaBundle\Entity\MangaPage:
+    properties:
+        page:
+            - Type:
+                type: string
+                message: "L'attribut <page> doit etre de type <string> !"
+            - Length:
+                max: 255
+                maxMessage: "La longueur de l'attribut <page> doit faire au plus {{ limit }} caracteres !"
+            - NotBlank:
+                message: "L'attribut <page> est obligatoire !"
+        mangaEbook:
+            - Type:
+                type: GrabMangaBundle\Entity\MangaEbook
+                message: "L'attribut <mangaEbook> de type <MangaEbook> est obligatoire !"
+
 GrabMangaBundle\Entity\MangaTome:
     properties:
         title:
@@ -230,8 +228,8 @@ GrabMangaBundle\Entity\TokenUser:
                 message: "L'attribut <value> est obligatoire !"
         time:
             - Type: 
-                type: bigint
-                message: "L'attribut <time> doit etre de type <bigint> !"
+                type: int
+                message: "L'attribut <time> doit etre de type <int> !"
             - NotBlank:
                 message: "L'attribut <time> est obligatoire !"
         user:

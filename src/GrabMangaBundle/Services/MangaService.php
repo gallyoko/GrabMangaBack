@@ -69,7 +69,7 @@ class MangaService {
                 $em->persist($manga);
             }
             $em->flush();
-            $this->serviceMangaTome->add($manga, $book);
+            //$this->serviceMangaTome->add($manga, $book);
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement du titre manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

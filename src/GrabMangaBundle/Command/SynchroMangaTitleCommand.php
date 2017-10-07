@@ -6,15 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SynchroMangaCommand extends ContainerAwareCommand
+class SynchroMangaTitleCommand extends ContainerAwareCommand
 {
     private $containerApp;
 
     protected function configure()
     {
         $this
-            ->setName('sync:manga')
-            ->setDescription('Synchronize all principal mangas table');
+            ->setName('sync:manga:title')
+            ->setDescription('Synchronize all principal mangas title table');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -40,18 +40,28 @@ class SynchroMangaCommand extends ContainerAwareCommand
 
     private function launch(OutputInterface $output) {
         try {
-            $this->containerApp->get('bdd.service')->checkSaveOk();
-            $this->containerApp->get('bdd.service')->setMangaAction();
+            $timeBegin = time();
+            //$this->containerApp->get('bdd.service')->checkSaveOk();
+            //$this->containerApp->get('bdd.service')->setMangaAction();
+            $output->writeln('ENREGISTREMENT DES MANGAS');
             $bookMangas = $this->containerApp->get('japscan.service')->getMangaTitles();
+            $countMangas = count($bookMangas);
+            $currentManga = 0;
             foreach ($bookMangas as $bookManga) {
                 try {
-                    $mangaBook = $this->containerApp->get('japscan.service')->setTomeAndChapter($bookManga);
+                    $mangaBook = $this->containerApp->get('japscan.service')->setSynopsis($bookManga);
                     $this->containerApp->get('manga.service')->add($mangaBook);
+                    $currentManga++;
+                    $output->writeln($currentManga.' / '.$countMangas);
                 } catch (\Exception $ex) {
-                    $output->writeln($ex->getMessage(), $ex->getCode());
+                    $output->writeln($ex->getMessage());
                 }
                 $mangaBook = null;
             }
+            $bookMangas = null;
+            gc_collect_cycles();
+            $timeStep = time() - $timeBegin;
+            $output->writeln('Operation effectuee en '.floor($timeStep/60).'mn et '.fmod($timeStep, 60).' secondes');
         } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage(), $ex->getCode());
         }

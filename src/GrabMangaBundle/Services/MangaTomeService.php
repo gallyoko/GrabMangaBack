@@ -14,7 +14,8 @@ class MangaTomeService {
 	private $serviceMessage;
     private $serviceMangaChapter;
 	
-	public function __construct($doctrine, $validator, $serviceMessage, $serviceMangaChapter) {
+	public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaChapterService $serviceMangaChapter) {
 		$this->doctrine = $doctrine;
 		$this->validator = $validator;
 		$this->serviceMessage = $serviceMessage;
@@ -34,10 +35,22 @@ class MangaTomeService {
         }
     }
 
-    public function add(Manga $manga, Book $book) {
+    public function getList() {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
+            $mangaTome = $repo->findAll();
+            if(!$mangaTome) {
+                throw new \Exception("Aucun Tome.", Response::HTTP_NOT_FOUND);
+            }
+            return $mangaTome;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des tomes : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    public function add(Manga $manga, $bookTomes) {
         try {
             $em = $this->doctrine->getManager();
-            $bookTomes = $book->getBookTomes();
             foreach ($bookTomes as $bookTome) {
                 $mangaTome = null;
                 if ($bookTome->getTitle()) {

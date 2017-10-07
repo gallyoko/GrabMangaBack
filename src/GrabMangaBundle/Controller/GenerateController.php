@@ -3,6 +3,7 @@
 namespace GrabMangaBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -10,6 +11,13 @@ use FOS\RestBundle\View\View;
 
 class GenerateController extends Controller
 {
+    public function setContainer(ContainerInterface $container = null) {
+        $this->container = $container;
+        $request = $container->get('request_stack')->getCurrentRequest();
+        if ($request->attributes->has('token')) {
+            $token = $request->attributes->get('token');
+        }
+    }
     /**
      * @Rest\View()
      * @Rest\Get("/generate/manga/{id}")
