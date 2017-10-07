@@ -1,0 +1,36 @@
+GrabMangaBundle\Entity\MangaPage:
+    type: entity
+    table: manga_page
+    indexes:
+        fk_manga_page_manga_ebook1_idx:
+            columns:
+                - manga_ebook_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        page:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+            column: page
+    manyToOne:
+        mangaEbook:
+            targetEntity: MangaEbook
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                manga_ebook_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }
