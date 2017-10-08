@@ -20,10 +20,10 @@ class SynchroMangaEbookCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $output->writeln("Lancement de la synchronisation.");
+            $output->writeln(date("d/m/Y H:i:s")." - Lancement de la synchronisation.");
             $this->init();
             $this->launch($output);
-            $output->writeln("Termine.");
+            $output->writeln(date("d/m/Y H:i:s")." - Termine.");
         } catch (\Exception $ex) {
             $output->writeln($ex->getMessage());
         }
@@ -43,8 +43,10 @@ class SynchroMangaEbookCommand extends ContainerAwareCommand
             $timeBegin = time();
             $output->writeln('ENREGISTREMENT DES EBOOK');
             $mangaChapters = $this->containerApp->get('manga_chapter.service')->getList();
-            $countMangaChapters = count($mangaChapters);
             $currentMangaChapter = 1;
+            $offset = $this->containerApp->get('manga_ebook.service')->getLastChapterId() - 1;
+            $mangaChapters = array_slice ($mangaChapters, $offset);
+            $countMangaChapters = count($mangaChapters);
             foreach ($mangaChapters as $mangaChapter) {
                 try {
                     $output->write('Ebook '.$currentMangaChapter.' / '.$countMangaChapters.'...');
@@ -61,6 +63,10 @@ class SynchroMangaEbookCommand extends ContainerAwareCommand
                     $output->writeln($ex->getMessage());
                 }
                 $bookEbook = null;
+                if ($currentMangaChapter > 500) {
+                    break;
+                }
+                gc_collect_cycles();
             }
             $timeStep = time() - $timeBegin;
             $output->writeln('Operation effectuee en '.floor($timeStep/60).'mn et '.fmod($timeStep, 60).' secondes');

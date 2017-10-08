@@ -13,6 +13,11 @@ class BookTome
     private $title = null;
 
     /**
+     * @var string
+     */
+    private $cover = null;
+
+    /**
      * @var \GrabMangaBundle\Generic\BookChapter []
      */
     private $bookChapters = [];
@@ -40,6 +45,30 @@ class BookTome
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Set cover
+     *
+     * @param string $cover
+     *
+     * @return BookTome
+     */
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover
+     *
+     * @return string
+     */
+    public function getCover()
+    {
+        return $this->cover;
     }
 
     /**

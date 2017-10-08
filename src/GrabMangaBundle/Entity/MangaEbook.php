@@ -81,3 +81,4 @@ class MangaEbook
         return $this->mangaChapter;
     }
 }
+

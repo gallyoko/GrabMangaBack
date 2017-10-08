@@ -20,10 +20,10 @@ class SynchroMangaTitleCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $output->writeln("Lancement de la synchronisation.");
+            $output->writeln(date("d/m/Y H:i:s")." - Lancement de la synchronisation.");
             $this->init();
             $this->launch($output);
-            $output->writeln("Termine.");
+            $output->writeln(date("d/m/Y H:i:s")." - Termine.");
         } catch (\Exception $ex) {
             $output->writeln($ex->getMessage());
         }
@@ -50,6 +50,7 @@ class SynchroMangaTitleCommand extends ContainerAwareCommand
             foreach ($bookMangas as $bookManga) {
                 try {
                     $mangaBook = $this->containerApp->get('japscan.service')->setSynopsis($bookManga);
+                    $mangaBook = $this->containerApp->get('japscan.service')->setCover($mangaBook);
                     $this->containerApp->get('manga.service')->add($mangaBook);
                     $currentManga++;
                     $output->writeln($currentManga.' / '.$countMangas);

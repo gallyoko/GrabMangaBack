@@ -16,13 +16,27 @@ class MangaChapterService {
 	private $serviceMessage;
     private $serviceMangaEbook;
 
-    public function __construct($doctrine, $validator, $serviceMessage, MangaEbookService $serviceMangaEbook) {
+    /**
+     * MangaChapterService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param MangaEbookService $serviceMangaEbook
+     */
+    public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaEbookService $serviceMangaEbook) {
         $this->doctrine = $doctrine;
         $this->validator = $validator;
         $this->serviceMessage = $serviceMessage;
         $this->serviceMangaEbook = $serviceMangaEbook;
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
     public function getOne($id) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
@@ -36,6 +50,10 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getList() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
@@ -49,6 +67,12 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param BookTome $bookTome
+     * @param MangaTome|null $mangaTome
+     * @throws \Exception
+     */
     public function add(Manga $manga, BookTome $bookTome, MangaTome $mangaTome = null) {
         try {
             $em = $this->doctrine->getManager();
@@ -81,6 +105,12 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
     public function getByManga(Manga $manga, $json =false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
@@ -107,6 +137,11 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @return mixed
+     * @throws \Exception
+     */
     public function getByMangaWithoutTome(Manga $manga) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
@@ -121,6 +156,12 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param MangaTome $mangaTome
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
     public function getByTome(MangaTome $mangaTome, $json = false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
@@ -147,6 +188,11 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param MangaChapter $mangaChapter
+     * @return mixed
+     * @throws \Exception
+     */
     public function getEbook(MangaChapter $mangaChapter) {
         try {
             return $this->serviceMangaEbook->getOneByMangaChapter($mangaChapter);
@@ -155,6 +201,13 @@ class MangaChapterService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param BookChapter $bookChapter
+     * @param MangaTome|null $mangaTome
+     * @return mixed
+     * @throws \Exception
+     */
     private function getOneByTitle(Manga $manga, BookChapter $bookChapter, MangaTome $mangaTome = null) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');

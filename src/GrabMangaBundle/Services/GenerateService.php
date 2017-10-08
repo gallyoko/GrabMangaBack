@@ -180,13 +180,15 @@ class GenerateService {
             foreach ($chapters as $chapter) {
                 $this->checkChapterDirectories($chapter);
                 $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
-                $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
-                foreach ($mangaPages as $mangaPage) {
-                    $this->savePageImage($mangaEbook, $mangaPage);
-                    $numPageDecode ++;
-                    $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
+                if ($mangaEbook) {
+                    $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
+                    foreach ($mangaPages as $mangaPage) {
+                        $this->savePageImage($mangaEbook, $mangaPage);
+                        $numPageDecode ++;
+                        $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
+                    }
+                    rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
                 }
-                rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
@@ -205,14 +207,16 @@ class GenerateService {
         try {
             $this->checkChapterDirectories($chapter);
             $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
-            $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
-            $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
-            foreach ($mangaPages as $mangaPage) {
-                $this->savePageImage($mangaEbook, $mangaPage);
-                $numPageDecode ++;
-                $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
+            if ($mangaEbook) {
+                $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
+                $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
+                foreach ($mangaPages as $mangaPage) {
+                    $this->savePageImage($mangaEbook, $mangaPage);
+                    $numPageDecode ++;
+                    $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
+                }
+                rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
             }
-            rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
             gc_collect_cycles();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de l'aspiration du chapitre : ". $ex->getMessage(), $ex->getCode());

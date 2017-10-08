@@ -4,7 +4,6 @@ namespace GrabMangaBundle\Services;
 
 use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaTome;
-use GrabMangaBundle\Generic\Book;
 use GrabMangaBundle\Generic\BookTome;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,7 +12,15 @@ class MangaTomeService {
 	private $validator;
 	private $serviceMessage;
     private $serviceMangaChapter;
-	
+
+    /**
+     * MangaTomeService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param MangaChapterService $serviceMangaChapter
+     */
 	public function __construct($doctrine, $validator, MessageService $serviceMessage,
                                 MangaChapterService $serviceMangaChapter) {
 		$this->doctrine = $doctrine;
@@ -22,6 +29,11 @@ class MangaTomeService {
         $this->serviceMangaChapter = $serviceMangaChapter;
 	}
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
     public function getOne($id) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
@@ -35,6 +47,10 @@ class MangaTomeService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getList() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
@@ -48,6 +64,11 @@ class MangaTomeService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param $bookTomes
+     * @throws \Exception
+     */
     public function add(Manga $manga, $bookTomes) {
         try {
             $em = $this->doctrine->getManager();
@@ -74,6 +95,12 @@ class MangaTomeService {
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
     public function getByManga(Manga $manga, $json = false) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
@@ -91,13 +118,18 @@ class MangaTomeService {
             } else {
                 $data = $mangaTomes;
             }
-
             return $data;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des tomes du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * @param Manga $manga
+     * @param BookTome $bookTome
+     * @return mixed
+     * @throws \Exception
+     */
     private function getOneByTitle(Manga $manga, BookTome $bookTome) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');

@@ -168,3 +168,4 @@ class MangaMaj
         return $this->filename;
     }
 }
+

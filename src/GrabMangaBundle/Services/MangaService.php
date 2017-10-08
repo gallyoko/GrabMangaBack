@@ -12,14 +12,28 @@ class MangaService {
 	private $validator;
 	private $serviceMessage;
     private $serviceMangaTome;
-	
-	public function __construct($doctrine, $validator, $serviceMessage, $serviceMangaTome) {
+
+    /**
+     * MangaService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param MangaTomeService $serviceMangaTome
+     */
+	public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaTomeService $serviceMangaTome) {
 		$this->doctrine = $doctrine;
 		$this->validator = $validator;
 		$this->serviceMessage = $serviceMessage;
         $this->serviceMangaTome = $serviceMangaTome;
 	}
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
     public function getOne($id) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');
@@ -33,6 +47,10 @@ class MangaService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getList() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');
@@ -46,6 +64,10 @@ class MangaService {
         }
     }
 
+    /**
+     * @param Book $book
+     * @throws \Exception
+     */
     public function add(Book $book) {
         try {
             $em = $this->doctrine->getManager();
@@ -58,7 +80,8 @@ class MangaService {
             }
             $manga->setTitle($book->getTitle())
                 ->setUrl($book->getUrl())
-                ->setSynopsis($book->getSynopsis());
+                ->setSynopsis($book->getSynopsis())
+                ->setCover($book->getCover());
             $errors = $this->validator->validate($manga);
             if (count($errors)>0) {
                 throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
@@ -69,12 +92,16 @@ class MangaService {
                 $em->persist($manga);
             }
             $em->flush();
-            //$this->serviceMangaTome->add($manga, $book);
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement du titre manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * @param Book $book
+     * @return mixed
+     * @throws \Exception
+     */
     private function getOneByTitle(Book $book) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');

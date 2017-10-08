@@ -38,7 +38,7 @@ class MangaPage
      *
      * @param string $page
      *
-     * @return MangaEbook
+     * @return MangaPage
      */
     public function setPage($page)
     {
@@ -81,3 +81,4 @@ class MangaPage
         return $this->mangaEbook;
     }
 }
+

@@ -125,4 +125,14 @@ class MangaEbookService {
         }
     }
 
+    public function getLastChapterId() {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaEbook');
+            $mangaEbook = $repo->findOneBy([], ['id' => 'DESC']);
+            return $mangaEbook->getMangaChapter()->getId();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du ebook manga : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
 }

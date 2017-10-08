@@ -19,6 +19,11 @@ class BookChapter
     private $url;
 
     /**
+     * @var string
+     */
+    private $cover;
+
+    /**
      * @var \GrabMangaBundle\Generic\BookEbook
      */
     private $bookEbook = null;
@@ -70,6 +75,30 @@ class BookChapter
     public function getUrl()
     {
         return $this->url;
+    }
+
+    /**
+     * Set cover
+     *
+     * @param string $cover
+     *
+     * @return BookChapter
+     */
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover
+     *
+     * @return string
+     */
+    public function getCover()
+    {
+        return $this->cover;
     }
 
     /**

@@ -85,6 +85,25 @@ class JapscanService {
     }
 
     /**
+     * @param Book $book
+     * @return Book
+     * @throws \Exception
+     */
+    public function setCover(Book $book) {
+        try {
+            $listCover = $this->getGoogleImage($book->getTitle().' affiche');
+            if (count($listCover)>0){
+                $book->setCover($listCover[0]);
+            }
+            return $book;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération de l'affiche du manga " .
+                "(".__METHOD__." ligne".$ex->getLine().") :" .
+                $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $url
      * @return array
      * @throws \Exception
@@ -231,4 +250,25 @@ class JapscanService {
         }
     }
 
+    /**
+     * @param $keyword
+     * @return array
+     * @throws \Exception
+     */
+    private function getGoogleImage($keyword){
+        try {
+            $file = file_get_contents('https://www.google.fr/search?q='.str_replace(' ', '+', $keyword).'&tbm=isch', FILE_USE_INCLUDE_PATH);
+            $imgLinkTemp = explode ('src="https://encrypted-tbn0.gstatic.com/images?q=tbn:', $file);
+            unset($imgLinkTemp[count($imgLinkTemp)-1]);
+            unset($imgLinkTemp[0]);
+            $imgLinks=[];
+            foreach ($imgLinkTemp as $linkTemp) {
+                $linkTemp = explode('" width="', $linkTemp);
+                $imgLinks[] = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:'.$linkTemp[0];
+            }
+            return $imgLinks;
+        } catch (\Exception $ex) {
+            throw new \Exception($ex->getMessage(), 500);
+        }
+    }
 }

@@ -18,6 +18,11 @@ class MangaTome
     private $title;
 
     /**
+     * @var string
+     */
+    private $cover;
+
+    /**
      * @var \GrabMangaBundle\Entity\Manga
      */
     private $manga;
@@ -58,6 +63,30 @@ class MangaTome
     }
 
     /**
+     * Set cover
+     *
+     * @param string $cover
+     *
+     * @return MangaTome
+     */
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover
+     *
+     * @return string
+     */
+    public function getCover()
+    {
+        return $this->cover;
+    }
+
+    /**
      * Set manga
      *
      * @param \GrabMangaBundle\Entity\Manga $manga
@@ -81,3 +110,4 @@ class MangaTome
         return $this->manga;
     }
 }
+

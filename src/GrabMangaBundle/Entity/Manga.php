@@ -27,6 +27,11 @@ class Manga
      */
     private $synopsis;
 
+    /**
+     * @var string
+     */
+    private $cover;
+
 
     /**
      * Get id
@@ -109,4 +114,29 @@ class Manga
     {
         return $this->synopsis;
     }
+
+    /**
+     * Set cover
+     *
+     * @param string $cover
+     *
+     * @return Manga
+     */
+    public function setCover($cover)
+    {
+        $this->cover = $cover;
+
+        return $this;
+    }
+
+    /**
+     * Get cover
+     *
+     * @return string
+     */
+    public function getCover()
+    {
+        return $this->cover;
+    }
 }
+

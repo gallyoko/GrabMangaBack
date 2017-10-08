@@ -15,27 +15,27 @@ class MangaDownload
     /**
      * @var integer
      */
-    private $currentPageDecode = 0;
+    private $currentPageDecode = '0';
 
     /**
      * @var integer
      */
-    private $currentPagePdf = 0;
+    private $currentPagePdf = '0';
 
     /**
      * @var integer
      */
-    private $maxPage;
+    private $maxPage = '0';
 
     /**
      * @var integer
      */
-    private $currentFileZip = 0;
+    private $currentFileZip = '0';
 
     /**
      * @var integer
      */
-    private $maxFileZip = 0;
+    private $maxFileZip = '0';
 
     /**
      * @var boolean
@@ -48,14 +48,14 @@ class MangaDownload
     private $finished = false;
 
     /**
-     * @var \GrabMangaBundle\Entity\MangaChapter
-     */
-    private $mangaChapter;
-
-    /**
      * @var \GrabMangaBundle\Entity\Manga
      */
     private $manga;
+
+    /**
+     * @var \GrabMangaBundle\Entity\MangaChapter
+     */
+    private $mangaChapter;
 
     /**
      * @var \GrabMangaBundle\Entity\MangaTome
@@ -247,30 +247,6 @@ class MangaDownload
     }
 
     /**
-     * Set mangaChapter
-     *
-     * @param \GrabMangaBundle\Entity\MangaChapter $mangaChapter
-     *
-     * @return MangaDownload
-     */
-    public function setMangaChapter(\GrabMangaBundle\Entity\MangaChapter $mangaChapter = null)
-    {
-        $this->mangaChapter = $mangaChapter;
-
-        return $this;
-    }
-
-    /**
-     * Get mangaChapter
-     *
-     * @return \GrabMangaBundle\Entity\MangaChapter
-     */
-    public function getMangaChapter()
-    {
-        return $this->mangaChapter;
-    }
-
-    /**
      * Set manga
      *
      * @param \GrabMangaBundle\Entity\Manga $manga
@@ -292,6 +268,30 @@ class MangaDownload
     public function getManga()
     {
         return $this->manga;
+    }
+
+    /**
+     * Set mangaChapter
+     *
+     * @param \GrabMangaBundle\Entity\MangaChapter $mangaChapter
+     *
+     * @return MangaDownload
+     */
+    public function setMangaChapter(\GrabMangaBundle\Entity\MangaChapter $mangaChapter = null)
+    {
+        $this->mangaChapter = $mangaChapter;
+
+        return $this;
+    }
+
+    /**
+     * Get mangaChapter
+     *
+     * @return \GrabMangaBundle\Entity\MangaChapter
+     */
+    public function getMangaChapter()
+    {
+        return $this->mangaChapter;
     }
 
     /**

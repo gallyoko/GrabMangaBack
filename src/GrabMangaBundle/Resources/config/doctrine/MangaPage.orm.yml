@@ -21,7 +21,6 @@ GrabMangaBundle\Entity\MangaPage:
             length: 255
             options:
                 fixed: false
-            column: page
     manyToOne:
         mangaEbook:
             targetEntity: MangaEbook
