@@ -148,7 +148,7 @@ class MangaChapterService {
             $mangaChapters = $repo->findBy([
                 "manga" => $manga,
                 "mangaTome" => null,
-            ]);
+            ], ['id' => 'DESC']);
 
             return $mangaChapters;
         } catch (\Exception $ex) {
@@ -167,7 +167,7 @@ class MangaChapterService {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaChapter');
             $mangaChapters = $repo->findBy([
                 "mangaTome" => $mangaTome,
-            ]);
+            ], ['id' => 'DESC']);
             if ($json) {
                 $data = [];
                 foreach ($mangaChapters as $mangaChapter) {
@@ -181,7 +181,6 @@ class MangaChapterService {
             } else {
                 $data = $mangaChapters;
             }
-
             return $data;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des chapitres du tome : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);

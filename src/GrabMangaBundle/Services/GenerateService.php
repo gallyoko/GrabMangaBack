@@ -273,7 +273,7 @@ class GenerateService {
             $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
             $pdf->SetAutoPageBreak(false, 0);
             $numImage = $this->serviceMangaDownload->getCurrentPagePdf();
-            $directories = scandir($this->dirDest);
+            $directories = scandir($this->dirDest, SCANDIR_SORT_DESCENDING);
             foreach ($directories as $directory) {
                 if ($directory != '.' && $directory != '..') {
                     $images = scandir($this->dirDest . DIRECTORY_SEPARATOR . $directory);
@@ -519,7 +519,6 @@ class GenerateService {
             $realPathPdf = realpath($this->dirPdf);
             if ($zip->open($realPathPdf . DIRECTORY_SEPARATOR . $bookFilename . '.zip', \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE) === FALSE) {
                 throw new \Exception("Erreur lors de la création du book compressé", 500);
-
             }
             $numFileZip = 0;
             $elementsToCompress = scandir($realPathPdf);

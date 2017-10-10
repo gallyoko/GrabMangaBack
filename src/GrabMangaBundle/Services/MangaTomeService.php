@@ -106,7 +106,7 @@ class MangaTomeService {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
             $mangaTomes = $repo->findBy([
                 "manga" => $manga,
-            ]);
+            ], ['id' => 'DESC']);
             if ($json) {
                 $data = [];
                 foreach ($mangaTomes as $mangaTome) {

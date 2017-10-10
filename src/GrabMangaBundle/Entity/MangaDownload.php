@@ -15,27 +15,27 @@ class MangaDownload
     /**
      * @var integer
      */
-    private $currentPageDecode = '0';
+    private $currentPageDecode = 0;
 
     /**
      * @var integer
      */
-    private $currentPagePdf = '0';
+    private $currentPagePdf = 0;
 
     /**
      * @var integer
      */
-    private $maxPage = '0';
+    private $maxPage = 0;
 
     /**
      * @var integer
      */
-    private $currentFileZip = '0';
+    private $currentFileZip = 0;
 
     /**
      * @var integer
      */
-    private $maxFileZip = '0';
+    private $maxFileZip = 0;
 
     /**
      * @var boolean

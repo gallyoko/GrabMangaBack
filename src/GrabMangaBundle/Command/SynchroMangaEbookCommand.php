@@ -23,7 +23,7 @@ class SynchroMangaEbookCommand extends ContainerAwareCommand
             $output->writeln(date("d/m/Y H:i:s")." - Lancement de la synchronisation.");
             $this->init();
             $this->launch($output);
-            $output->writeln(date("d/m/Y H:i:s")." - Termine.");
+            $output->writeln(date("d/m/Y H:i:s")." - Termine.\n");
         } catch (\Exception $ex) {
             $output->writeln($ex->getMessage());
         }
@@ -63,7 +63,7 @@ class SynchroMangaEbookCommand extends ContainerAwareCommand
                     $output->writeln($ex->getMessage());
                 }
                 $bookEbook = null;
-                if ($currentMangaChapter > 500) {
+                if ($currentMangaChapter > 550) {
                     break;
                 }
                 gc_collect_cycles();
