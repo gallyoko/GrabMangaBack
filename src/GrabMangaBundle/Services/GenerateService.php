@@ -176,19 +176,8 @@ class GenerateService {
     private function aspireTome(MangaTome $tome) {
         try {
             $chapters = $this->serviceMangaChapter->getByTome($tome);
-            $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
             foreach ($chapters as $chapter) {
-                $this->checkChapterDirectories($chapter);
-                $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
-                if ($mangaEbook) {
-                    $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
-                    foreach ($mangaPages as $mangaPage) {
-                        $this->savePageImage($mangaEbook, $mangaPage);
-                        $numPageDecode ++;
-                        $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
-                    }
-                    rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
-                }
+                $this->aspireChapter($chapter);
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
@@ -205,9 +194,9 @@ class GenerateService {
      */
     private function aspireChapter(MangaChapter $chapter) {
         try {
-            $this->checkChapterDirectories($chapter);
             $mangaEbook = $this->serviceMangaChapter->getEbook($chapter);
             if ($mangaEbook) {
+                $this->checkChapterDirectories($chapter);
                 $numPageDecode = $this->serviceMangaDownload->getCurrentPageDecode();
                 $mangaPages = $this->serviceMangaEbook->getMangaPages($mangaEbook);
                 foreach ($mangaPages as $mangaPage) {
