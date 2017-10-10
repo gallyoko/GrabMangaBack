@@ -221,26 +221,14 @@ class GenerateService {
     private function savePageImage(MangaEbook $mangaEbook, MangaPage $mangaPage) {
         try {
             $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()).$mangaPage->getPage();
+            $page = str_replace(['.png', '.PNG', '.gif', '.GIF', '.JPG'], '.jpg', $mangaPage->getPage());
             $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $mangaPage->getPage();
+                DIRECTORY_SEPARATOR . $page;
             $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $mangaPage->getPage();
-            $pageInfo = new \SplFileInfo($mangaPage->getPage());
-            if (strtolower($pageInfo->getExtension()) == 'jpg') {
-                $current = imagecreatefromjpeg($url);
-            } elseif (strtolower($pageInfo->getExtension()) == 'png') {
-                $current = imagecreatefrompng($url);
-            } elseif (strtolower($pageInfo->getExtension()) == 'gif') {
-                $current = imagecreatefromgif($url);
-            }
+                DIRECTORY_SEPARATOR . $page;
+            $current = imagecreatefromjpeg($url);
             if ($current) {
-                if (strtolower($pageInfo->getExtension()) == 'jpg') {
-                    imagejpeg($current, $fileTmp);
-                } elseif (strtolower($pageInfo->getExtension()) == 'png') {
-                    imagepng($current, $fileTmp);
-                } elseif (strtolower($pageInfo->getExtension()) == 'gif') {
-                    imagegif($current, $fileTmp);
-                }
+                imagejpeg($current, $fileTmp);
                 imagedestroy($current);
                 copy($fileTmp, $fileEnd);
                 unlink($fileTmp);

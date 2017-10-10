@@ -198,47 +198,36 @@ class JapscanService {
                         if (count($pageInfo) > 1) {
                             list ($pageToTrim) = $pageInfo;
                             $page = trim($pageToTrim);
-                            if ($nbPage == 0) {
-                                $pageMinFind = $page;
+                            if(substr($page, 0, 4) != 'IMG_') {
+                                $bookPage = new BookPage();
+                                $bookPage->setPage($page);
+                                $bookPages[] = $bookPage;
+                                $nbPage ++;
                             }
-                            $pageMaxFind = $page;
-                            $bookPage = new BookPage();
-                            $bookPage->setPage($page);
-                            $bookPages[] = $bookPage;
-                            $nbPage ++;
                         }
                     }
                     if ($nbPage > 0) {
-                        $format = substr(strrchr($pageMinFind, '.'), 1);
-
-                        $pageMaskTemp = str_replace('.' . $format, '.' . '__FORMAT__', $pageMaxFind);
-                        $pageMask = str_replace(str_replace('.' . $format, '', $pageMaxFind) . '.', '__PAGE__' . '.', $pageMaskTemp);
-
-                        if (strstr($pageMask, '__FORMAT__') !== false) {
-                            if (strstr($pageMask, '__PAGE__') !== false) {
-                                list ($drop, $baseUrlToClean) = explode(
-                                    '<select name="mangas" id="mangas" ', trim($partBaseUrl));
-                                unset($drop);
-                                list ($dataUrlNomToClean, $drop, $dataUrlTomeToClean) = explode(
-                                    '" data-uri="', trim($baseUrlToClean));
-                                $dataUrlNom = trim(str_replace('data-nom="', '', trim($dataUrlNomToClean)));
-                                if (strstr($dataUrlTomeToClean, '" data-nom="') !== false) {
-                                    list ($drop, $dataUrlTomeToCleanTmp) = explode('" data-nom="',
-                                        trim($dataUrlTomeToClean));
-                                    unset($drop);
-                                    $dataUrlTome = trim(
-                                        str_replace('"></select>', '', trim($dataUrlTomeToCleanTmp)));
-                                } else {
-                                    $dataUrlTome = trim(
-                                        str_replace('"></select>', '', trim($dataUrlTomeToClean)));
-                                }
-                                $urlMask = 'http://cdn.japscan.com/lel/' . $dataUrlNom . '/' .
-                                    $dataUrlTome . '/';
-                                $bookEbook = new BookEbook();
-                                $bookEbook->setUrlMask($urlMask)
-                                    ->setBookPages($bookPages);
-                            }
+                        list ($drop, $baseUrlToClean) = explode(
+                            '<select name="mangas" id="mangas" ', trim($partBaseUrl));
+                        unset($drop);
+                        list ($dataUrlNomToClean, $drop, $dataUrlTomeToClean) = explode(
+                            '" data-uri="', trim($baseUrlToClean));
+                        $dataUrlNom = trim(str_replace('data-nom="', '', trim($dataUrlNomToClean)));
+                        if (strstr($dataUrlTomeToClean, '" data-nom="') !== false) {
+                            list ($drop, $dataUrlTomeToCleanTmp) = explode('" data-nom="',
+                                trim($dataUrlTomeToClean));
+                            unset($drop);
+                            $dataUrlTome = trim(
+                                str_replace('"></select>', '', trim($dataUrlTomeToCleanTmp)));
+                        } else {
+                            $dataUrlTome = trim(
+                                str_replace('"></select>', '', trim($dataUrlTomeToClean)));
                         }
+                        $urlMask = 'http://cdn.japscan.com/lel/' . $dataUrlNom . '/' .
+                            $dataUrlTome . '/';
+                        $bookEbook = new BookEbook();
+                        $bookEbook->setUrlMask($urlMask)
+                            ->setBookPages($bookPages);
                     }
                 }
             }
