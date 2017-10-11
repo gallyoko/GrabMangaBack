@@ -17,8 +17,8 @@ class GrabMangaController extends Controller
             if (!$request->attributes->has('token')) {
                 throw new \Exception("Token non fourni", Response::HTTP_UNAUTHORIZED);
             }
-            $token = $request->attributes->get('token');
-            $this->token = $this->get('security.service')->checkAndUpdateToken($token);
+            $currentToken = $request->attributes->get('token');
+            $this->token = $this->get('security.service')->checkAndUpdateToken($currentToken);
         } catch (\Exception $ex) {
             throw new \Exception("Alerte sécurité : ".$ex->getMessage(), $ex->getCode());
         }
@@ -31,6 +31,9 @@ class GrabMangaController extends Controller
      */
     public function setResponse($data) {
         try {
+            if (!$this->token) {
+                throw new \Exception("Aucun token défini", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             return [
                 'token' => $this->token,
                 'data' => $data,
