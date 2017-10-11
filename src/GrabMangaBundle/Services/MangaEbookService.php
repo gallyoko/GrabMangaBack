@@ -117,6 +117,11 @@ class MangaEbookService {
         }
     }
 
+    /**
+     * @param MangaEbook $mangaEbook
+     * @return mixed
+     * @throws \Exception
+     */
     public function getMangaPages(MangaEbook $mangaEbook) {
         try {
             return $this->serviceMangaPage->getByMangaEbook($mangaEbook);
@@ -125,6 +130,10 @@ class MangaEbookService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getLastChapterId() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaEbook');

@@ -84,6 +84,11 @@ class MangaPageService {
         }
     }
 
+    /**
+     * @param MangaEbook $mangaEbook
+     * @return mixed
+     * @throws \Exception
+     */
     public function getByMangaEbook(MangaEbook $mangaEbook) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaPage');
