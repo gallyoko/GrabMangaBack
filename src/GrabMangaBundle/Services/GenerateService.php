@@ -71,13 +71,8 @@ class GenerateService {
      */
     public function generateByBook(Manga $manga, MangaDownload $download) {
         try {
-            set_time_limit(0);
             $timestampIn = time();
-            $this->user = $download->getUser();
-            $this->serviceMangaDownload->setMangaDownload($download);
-            $this->checkDirectories();
-            $this->cleanDirectory($this->dirSrc);
-            $this->serviceMangaDownload->tagCurrent();
+            $this->init($download);
             $tomes = $this->serviceMangaTome->getByManga($manga);
             $pdfFilenames = [];
             foreach ($tomes as $tome) {
@@ -119,13 +114,8 @@ class GenerateService {
      */
     public function generateByTome(MangaTome $tome, MangaDownload $download) {
         try {
-            set_time_limit(0);
             $timestampIn = time();
-            $this->user = $download->getUser();
-            $this->serviceMangaDownload->setMangaDownload($download);
-            $this->checkDirectories();
-            $this->cleanDirectory($this->dirSrc);
-            $this->serviceMangaDownload->tagCurrent();
+            $this->init($download);
             $this->aspireTome($tome);
             $pdfFilename = $this->getPdfTomeName($tome);
             $this->imageToPdf($pdfFilename);
@@ -150,13 +140,8 @@ class GenerateService {
      */
     public function generateByChapter(MangaChapter $chapter, MangaDownload $download) {
         try {
-            set_time_limit(0);
             $timestampIn = time();
-            $this->user = $download->getUser();
-            $this->serviceMangaDownload->setMangaDownload($download);
-            $this->checkDirectories();
-            $this->cleanDirectory($this->dirSrc);
-            $this->serviceMangaDownload->tagCurrent();
+            $this->init($download);
             $this->aspireChapter($chapter);
             $pdfFilename = $this->getPdfChapterName($chapter);
             $this->imageToPdf($pdfFilename);
@@ -167,6 +152,25 @@ class GenerateService {
             return ['timeElapsed' => $timestamp];
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de génération du chapitre : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Tag le lancement de la génération en base et initialise les dossiers de traitement
+     *
+     * @param MangaDownload $download
+     * @throws \Exception
+     */
+    private function init(MangaDownload $download) {
+        try {
+            set_time_limit(0);
+            $this->user = $download->getUser();
+            $this->serviceMangaDownload->setMangaDownload($download);
+            $this->checkDirectories();
+            $this->cleanDirectory($this->dirSrc);
+            $this->serviceMangaDownload->tagCurrent();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de l'initialisation de la génération : ". $ex->getMessage(), $ex->getCode());
         }
     }
 
