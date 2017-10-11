@@ -24,6 +24,7 @@ class GenerateService {
     private $dirSrc;
     private $dirDest;
     private $dirPdf;
+    private $user;
 
     /**
      * GenerateService constructor.
@@ -72,6 +73,7 @@ class GenerateService {
         try {
             set_time_limit(0);
             $timestampIn = time();
+            $this->user = $download->getUser();
             $this->serviceMangaDownload->setMangaDownload($download);
             $this->checkDirectories();
             $this->cleanDirectory($this->dirSrc);
@@ -119,6 +121,7 @@ class GenerateService {
         try {
             set_time_limit(0);
             $timestampIn = time();
+            $this->user = $download->getUser();
             $this->serviceMangaDownload->setMangaDownload($download);
             $this->checkDirectories();
             $this->cleanDirectory($this->dirSrc);
@@ -149,6 +152,7 @@ class GenerateService {
         try {
             set_time_limit(0);
             $timestampIn = time();
+            $this->user = $download->getUser();
             $this->serviceMangaDownload->setMangaDownload($download);
             $this->checkDirectories();
             $this->cleanDirectory($this->dirSrc);
@@ -350,6 +354,10 @@ class GenerateService {
      */
     private function checkDirectories() {
         try {
+            $this->dirSrc = $this->dirSrc.DIRECTORY_SEPARATOR.$this->user->getId();
+            $this->dirDest = $this->dirDest.DIRECTORY_SEPARATOR.$this->user->getId();
+            $this->dirPdf = $this->dirPdf.DIRECTORY_SEPARATOR.$this->user->getId();
+
             if (! is_dir($this->dirSrc)) {
                 if (! mkdir($this->dirSrc, 0777, true)) {
                     throw new \Exception('Echec lors de la création du répertoire ' . $this->dirSrc);
