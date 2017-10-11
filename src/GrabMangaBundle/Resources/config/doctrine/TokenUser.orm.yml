@@ -1,6 +1,7 @@
 GrabMangaBundle\Entity\TokenUser:
     type: entity
     table: token_user
+    repositoryClass: GrabMangaBundle\Entity\Repository\TokenUserRepository
     indexes:
         fk_token_user_user_idx:
             columns:

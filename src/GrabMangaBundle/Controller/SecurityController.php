@@ -10,7 +10,6 @@ use FOS\RestBundle\View\View;
 
 class SecurityController extends Controller
 {
-
     /**
      * @Rest\View()
      * @Rest\Post("/auth")

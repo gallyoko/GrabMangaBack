@@ -2,31 +2,21 @@
 
 namespace GrabMangaBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\View;
 
-class GenerateController extends Controller
+class GenerateController extends GrabMangaController
 {
-    public function setContainer(ContainerInterface $container = null) {
-        $this->container = $container;
-        $request = $container->get('request_stack')->getCurrentRequest();
-        if ($request->attributes->has('token')) {
-            $token = $request->attributes->get('token');
-        }
-    }
     /**
      * @Rest\View()
-     * @Rest\Get("/generate/manga/{id}")
+     * @Rest\Get("/generate/manga/{token}/{id}")
      */
     public function generateMangaAction($id) {
         try {
             $manga = $this->get('manga.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveBook($manga);
-            return $this->get('generate.service')->generateByBook($manga, $download);
+            $data = $this->get('generate.service')->generateByBook($manga, $download);
+            return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }
@@ -34,13 +24,14 @@ class GenerateController extends Controller
 
     /**
      * @Rest\View()
-     * @Rest\Get("/generate/tome/{id}")
+     * @Rest\Get("/generate/tome/{token}/{id}")
      */
     public function generateTomeAction($id) {
         try {
             $tome = $this->get('manga_tome.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveTome($tome);
-            return $this->get('generate.service')->generateByTome($tome, $download);
+            $data = $this->get('generate.service')->generateByTome($tome, $download);
+            return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }
@@ -48,13 +39,14 @@ class GenerateController extends Controller
 
     /**
      * @Rest\View()
-     * @Rest\Get("/generate/chapter/{id}")
+     * @Rest\Get("/generate/chapter/{token}/{id}")
      */
     public function generateChapterAction($id) {
         try {
             $chapter = $this->get('manga_chapter.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveChapter($chapter);
-            return $this->get('generate.service')->generateByChapter($chapter, $download);
+            $data = $this->get('generate.service')->generateByChapter($chapter, $download);
+            return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }
