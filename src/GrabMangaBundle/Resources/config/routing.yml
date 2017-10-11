@@ -6,6 +6,19 @@ manga:
     type:     rest
     resource: GrabMangaBundle\Controller\MangaController
 
+manga.tome:
+    type:     rest
+    resource: GrabMangaBundle\Controller\MangaTomeController
+
+manga.chapter:
+    type:     rest
+    resource: GrabMangaBundle\Controller\MangaChapterController
+
+manga.download:
+    type:     rest
+    resource: GrabMangaBundle\Controller\MangaDownloadController
+
 generate:
     type:     rest
     resource: GrabMangaBundle\Controller\GenerateController
+

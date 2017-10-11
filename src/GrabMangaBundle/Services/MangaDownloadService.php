@@ -316,4 +316,36 @@ class MangaDownloadService {
         }
     }
 
+    /***************************************************
+     ********************* API *************************
+     ***************************************************/
+
+    /**
+     * @param User $user
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
+    public function getByUser(User $user, $json = false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownloads = $repo->findBy([
+                "user" => $user,
+            ]);
+            if ($json) {
+                $data = [];
+                foreach ($mangaDownloads as $mangaDownload) {
+                    $data[] = [
+                        "id" => $mangaDownload->getId(),
+                    ];
+                }
+            } else {
+                $data = $mangaDownloads;
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements des utilisateurs : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

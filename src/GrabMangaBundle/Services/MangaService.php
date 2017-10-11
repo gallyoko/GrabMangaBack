@@ -113,4 +113,93 @@ class MangaService {
             throw new \Exception("Erreur lors du controle d'existence du titre manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /***************************************************
+     ********************* API *************************
+     ***************************************************/
+
+    /**
+     * Retourne les mangas correspondant à un morceau de titre
+     *
+     * @param string $title
+     * @param bool $json
+     * @return mixed
+     * @throws \Exception
+     */
+    public function findByTitle($title, $json=false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');
+            $data = $repo->findByTitle($title);
+            if ($json) {
+                $mangas = [];
+                foreach ($data as $manga) {
+                    $mangas[] = [
+                        'id' => $manga->getId(),
+                        'title' => $manga->getTitle(),
+                        'cover' => $manga->getCover(),
+                    ];
+                }
+            } else {
+                $mangas = $data;
+            }
+            return $mangas;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la recherche des titres manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Retourne les mangas commençant par le mot fourni
+     *
+     * @param string $word
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
+    public function findByTitleBeginBy($word, $json=false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:Manga');
+            $data = $repo->findByTitleBeginBy($word);
+            if ($json) {
+                $mangas = [];
+                foreach ($data as $manga) {
+                    $mangas[] = [
+                        'id' => $manga->getId(),
+                        'title' => $manga->getTitle(),
+                        'cover' => $manga->getCover(),
+                    ];
+                }
+            } else {
+                $mangas = $data;
+            }
+            return $mangas;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la recherche des titres manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Retourne les informations d'un manga en fonction de son identifiant
+     *
+     * @param $mangaId
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
+    public function getInfo($mangaId, $json=false) {
+        try {
+            $manga = $this->getOne($mangaId);
+            $mangaTomes = $this->serviceMangaTome->getByManga($manga);
+            $info = [
+                'id' => $manga->getId(),
+                'title' => $manga->getTitle(),
+                'synopsis' => $manga->getSynopsis(),
+                'cover' => $manga->getCover(),
+                'countTome' => count($mangaTomes),
+            ];
+            return $info;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors de la récupération des informations du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

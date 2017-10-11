@@ -11,7 +11,7 @@ class MangaController extends GrabMangaController
      * @Rest\View()
      * @Rest\Get("/mangas/{token}")
      */
-    public function getAllAction() {
+    public function getMangaAllAction() {
         try {
             $data = $this->get('manga.service')->getList();
             return $this->setResponse($data);
@@ -22,12 +22,11 @@ class MangaController extends GrabMangaController
 
     /**
      * @Rest\View()
-     * @Rest\Get("/manga/tomes/{token}/{mangaId}")
+     * @Rest\Get("/mangas/search/{token}/{search}")
      */
-    public function getTomesAction($mangaId) {
+    public function getMangaSearchAction($search) {
         try {
-            $manga = $this->get('manga.service')->getOne($mangaId);
-            $data = $this->get('manga_tome.service')->getByManga($manga, true);
+            $data = $this->get('manga.service')->findByTitle($search, true);
             return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
@@ -36,12 +35,11 @@ class MangaController extends GrabMangaController
 
     /**
      * @Rest\View()
-     * @Rest\Get("/manga/chapters/{token}/{mangaId}")
+     * @Rest\Get("/mangas/search/begin/{token}/{search}")
      */
-    public function getChaptersAction($mangaId) {
+    public function getMangaSearchBeginAction($search) {
         try {
-            $manga = $this->get('manga.service')->getOne($mangaId);
-            $data = $this->get('manga_chapter.service')->getByManga($manga, true);
+            $data = $this->get('manga.service')->findByTitleBeginBy($search, true);
             return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
@@ -50,12 +48,11 @@ class MangaController extends GrabMangaController
 
     /**
      * @Rest\View()
-     * @Rest\Get("/manga/tome/chapters/{token}/{tomeId}")
+     * @Rest\Get("/manga/info/{token}/{id}")
      */
-    public function getChaptersTomeAction($tomeId) {
+    public function getMangaInfoAction($id) {
         try {
-            $tome = $this->get('manga_tome.service')->getOne($tomeId);
-            $data = $this->get('manga_chapter.service')->getByTome($tome);
+            $data = $this->get('manga.service')->getInfo($id, true);
             return $this->setResponse($data);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());

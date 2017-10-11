@@ -1,6 +1,7 @@
 GrabMangaBundle\Entity\Manga:
     type: entity
     table: manga
+    repositoryClass: GrabMangaBundle\Entity\Repository\MangaRepository
     id:
         id:
             type: integer

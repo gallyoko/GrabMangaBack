@@ -97,6 +97,29 @@ class MangaTomeService {
 
     /**
      * @param Manga $manga
+     * @param BookTome $bookTome
+     * @return mixed
+     * @throws \Exception
+     */
+    private function getOneByTitle(Manga $manga, BookTome $bookTome) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
+            $mangaTome = $repo->findOneBy([
+                "manga" => $manga,
+                "title" => $bookTome->getTitle(),
+            ]);
+            return $mangaTome;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur lors du controle d'existence du tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /***************************************************
+     ********************* API *************************
+     ***************************************************/
+
+    /**
+     * @param Manga $manga
      * @param bool $json
      * @return array
      * @throws \Exception
@@ -125,21 +148,31 @@ class MangaTomeService {
     }
 
     /**
-     * @param Manga $manga
-     * @param BookTome $bookTome
-     * @return mixed
+     * Retourne les informations d'un tome en fonction de son identifiant
+     *
+     * @param $mangaTomeId
+     * @return array
      * @throws \Exception
      */
-    private function getOneByTitle(Manga $manga, BookTome $bookTome) {
+    public function getInfo($mangaTomeId) {
         try {
-            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
-            $mangaTome = $repo->findOneBy([
-                "manga" => $manga,
-                "title" => $bookTome->getTitle(),
-            ]);
-            return $mangaTome;
+            $mangaTome = $this->getOne($mangaTomeId);
+            $mangaChapters = $this->serviceMangaChapter->getByTome($mangaTome);
+            $info = [
+                'id' => $mangaTome->getId(),
+                'title' => $mangaTome->getTitle(),
+                'countChapter' => count($mangaChapters),
+                'manga' => [
+                    'id' => $mangaTome->getManga()->getId(),
+                    'title' => $mangaTome->getManga()->getTitle(),
+                    'synopsis' => $mangaTome->getManga()->getSynopsis(),
+                    'cover' => $mangaTome->getManga()->getCover(),
+                ],
+            ];
+            return $info;
         } catch (\Exception $ex) {
-            throw new \Exception("Erreur lors du controle d'existence du tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new \Exception("Erreur lors de la récupération des informations du tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 }
