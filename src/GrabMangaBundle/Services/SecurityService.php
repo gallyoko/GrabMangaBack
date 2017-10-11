@@ -121,6 +121,13 @@ class SecurityService {
         }
     }
 
+    /**
+     * retourne l'utilisateur correspondant au token fourni
+     *
+     * @param $token
+     * @return User
+     * @throws \Exception
+     */
     public function getUser($token) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:TokenUser');

@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GrabMangaController extends Controller
 {
+    private $token = null;
+
     public function setContainer(ContainerInterface $container = null) {
         try {
             $this->container = $container;
@@ -16,8 +18,7 @@ class GrabMangaController extends Controller
                 throw new \Exception("Token non fourni", Response::HTTP_UNAUTHORIZED);
             }
             $token = $request->attributes->get('token');
-            $newToken = $this->get('security.service')->checkAndUpdateToken($token);
-            $request->attributes->set('token', $newToken);
+            $this->token = $this->get('security.service')->checkAndUpdateToken($token);
         } catch (\Exception $ex) {
             throw new \Exception("Alerte sécurité : ".$ex->getMessage(), $ex->getCode());
         }
@@ -30,13 +31,27 @@ class GrabMangaController extends Controller
      */
     public function setResponse($data) {
         try {
-            $request = $this->get('request_stack')->getCurrentRequest();
             return [
-                'token' => $request->attributes->get('token'),
+                'token' => $this->token,
                 'data' => $data,
             ];
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de génération de la réponse : ".$ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @return User
+     * @throws \Exception
+     */
+    public function getUser(){
+        try {
+            if (!$this->token) {
+                throw new \Exception("Aucun token défini", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $this->get('security.service')->getUser($this->token);
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération de l'utilisateur courant : ".$ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

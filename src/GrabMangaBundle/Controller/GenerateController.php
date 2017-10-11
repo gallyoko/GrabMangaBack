@@ -14,7 +14,7 @@ class GenerateController extends GrabMangaController
     public function generateMangaAction($id) {
         try {
             $manga = $this->get('manga.service')->getOne($id);
-            $download = $this->get('manga_download.service')->saveBook($manga);
+            $download = $this->get('manga_download.service')->saveBook($this->getUser(), $manga);
             $data = $this->get('generate.service')->generateByBook($manga, $download);
             return $this->setResponse($data);
         } catch (\Exception $ex) {
@@ -29,7 +29,7 @@ class GenerateController extends GrabMangaController
     public function generateTomeAction($id) {
         try {
             $tome = $this->get('manga_tome.service')->getOne($id);
-            $download = $this->get('manga_download.service')->saveTome($tome);
+            $download = $this->get('manga_download.service')->saveTome($this->getUser(), $tome);
             $data = $this->get('generate.service')->generateByTome($tome, $download);
             return $this->setResponse($data);
         } catch (\Exception $ex) {
@@ -44,7 +44,7 @@ class GenerateController extends GrabMangaController
     public function generateChapterAction($id) {
         try {
             $chapter = $this->get('manga_chapter.service')->getOne($id);
-            $download = $this->get('manga_download.service')->saveChapter($chapter);
+            $download = $this->get('manga_download.service')->saveChapter($this->getUser(), $chapter);
             $data = $this->get('generate.service')->generateByChapter($chapter, $download);
             return $this->setResponse($data);
         } catch (\Exception $ex) {

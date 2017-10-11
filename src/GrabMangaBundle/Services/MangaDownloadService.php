@@ -7,6 +7,7 @@ use GrabMangaBundle\Entity\Manga;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaDownload;
+use GrabMangaBundle\Entity\User;
 
 class MangaDownloadService {
 
@@ -17,9 +18,19 @@ class MangaDownloadService {
 	private $serviceMessage;
     private $serviceMangaEbook;
     private $serviceMangaChapter;
-    private $user;
 
-    public function __construct($doctrine, $validator, $serviceMessage, $serviceMangaEbook, $serviceMangaChapter) {
+    /**
+     * MangaDownloadService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param MangaEbookService $serviceMangaEbook
+     * @param MangaChapterService $serviceMangaChapter
+     */
+    public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                MangaEbookService $serviceMangaEbook,
+                                MangaChapterService $serviceMangaChapter) {
         $this->mangaDownload = null;
         $this->doctrine = $doctrine;
         $this->em = $doctrine->getManager();
@@ -27,10 +38,12 @@ class MangaDownloadService {
         $this->serviceMessage = $serviceMessage;
         $this->serviceMangaEbook = $serviceMangaEbook;
         $this->serviceMangaChapter = $serviceMangaChapter;
-        $repo = $doctrine->getManager()->getRepository('GrabMangaBundle:User');
-        $this->user = $repo->find(1);
 	}
 
+    /**
+     * @param MangaDownload $mangaDownload
+     * @throws \Exception
+     */
     public function setMangaDownload(MangaDownload $mangaDownload) {
         try {
             $this->mangaDownload = $mangaDownload;
@@ -39,6 +52,10 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @return null
+     * @throws \Exception
+     */
     public function getMangaDownload() {
         try {
             return $this->mangaDownload;
@@ -47,6 +64,11 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
     public function getOne($id) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
@@ -60,17 +82,23 @@ class MangaDownloadService {
         }
     }
 
-    public function saveBook(Manga $manga) {
+    /**
+     * @param User $user
+     * @param Manga $manga
+     * @return MangaDownload
+     * @throws \Exception
+     */
+    public function saveBook(User $user, Manga $manga) {
         try {
             $mangaDownload = new MangaDownload();
             $mangaChapters = $this->serviceMangaChapter->getByManga($manga);
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters($mangaChapters);
             $mangaDownload->setManga($manga)
-                ->setUser($this->user)
+                ->setUser($user)
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
@@ -80,17 +108,23 @@ class MangaDownloadService {
         }
     }
 
-    public function saveTome(MangaTome $mangaTome) {
+    /**
+     * @param User $user
+     * @param MangaTome $mangaTome
+     * @return MangaDownload
+     * @throws \Exception
+     */
+    public function saveTome(User $user, MangaTome $mangaTome) {
         try {
             $mangaDownload = new MangaDownload();
             $mangaChapters = $this->serviceMangaChapter->getByTome($mangaTome);
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters($mangaChapters);
             $mangaDownload->setMangaTome($mangaTome)
-                ->setUser($this->user)
+                ->setUser($user)
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
@@ -100,16 +134,22 @@ class MangaDownloadService {
         }
     }
 
-    public function saveChapter(MangaChapter $mangaChapter) {
+    /**
+     * @param User $user
+     * @param MangaChapter $mangaChapter
+     * @return MangaDownload
+     * @throws \Exception
+     */
+    public function saveChapter(User $user, MangaChapter $mangaChapter) {
         try {
             $mangaDownload = new MangaDownload();
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters([$mangaChapter]);
             $mangaDownload->setMangaChapter($mangaChapter)
-                ->setUser($this->user)
+                ->setUser($user)
                 ->setMaxPage($maxPages);
             $errors = $this->validator->validate($mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->persist($mangaDownload);
             $this->em->flush();
@@ -119,15 +159,18 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function tagCurrent() {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $this->mangaDownload->setCurrent(true);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
@@ -136,10 +179,13 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function tagFinished() {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $maxPages = $this->mangaDownload->getMaxPage();
             $this->mangaDownload->setCurrent(false);
@@ -147,7 +193,7 @@ class MangaDownloadService {
             $this->mangaDownload->setCurrentPagePdf($maxPages);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
@@ -156,15 +202,19 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @param $num
+     * @throws \Exception
+     */
     public function setCurrentPageDecode($num) {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $this->mangaDownload->setCurrentPageDecode($num);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
@@ -173,10 +223,14 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getCurrentPageDecode() {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             return $this->mangaDownload->getCurrentPageDecode();
         } catch (\Exception $ex) {
@@ -184,15 +238,19 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @param $num
+     * @throws \Exception
+     */
     public function setCurrentPagePdf($num) {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $this->mangaDownload->setCurrentPagePdf($num);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
@@ -201,10 +259,14 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
     public function getCurrentPagePdf() {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             return $this->mangaDownload->getCurrentPagePdf();
         } catch (\Exception $ex) {
@@ -212,15 +274,19 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @param $num
+     * @throws \Exception
+     */
     public function setMaxFileZip($num) {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $this->mangaDownload->setMaxFileZip($num);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
@@ -229,15 +295,19 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @param $num
+     * @throws \Exception
+     */
     public function setCurrentFileZip($num) {
         try {
             if (!$this->mangaDownload) {
-                throw new \Exception("Aucun téléchargement en cours", 404);
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
             }
             $this->mangaDownload->setCurrentFileZip($num);
             $errors = $this->validator->validate($this->mangaDownload);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->merge($this->mangaDownload);
             $this->em->flush();
