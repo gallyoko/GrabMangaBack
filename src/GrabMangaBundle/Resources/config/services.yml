@@ -5,7 +5,7 @@ services:
 
     security.service:
         class: GrabMangaBundle\Services\SecurityService
-        arguments: [ "@doctrine", "@validator", "@message.service" ]
+        arguments: [ "@doctrine", "@validator", "@message.service", "%security%" ]
 
     japscan.service:
         class: GrabMangaBundle\Services\JapscanService

@@ -12,17 +12,32 @@ class SecurityService {
     private $em;
     private $validator;
     private $serviceMessage;
+    private $securityParameter;
 
-    const TIME_ELAPSED = 60*15;
-    const KEEP_MAX_TOKEN = 10;
-
-    public function __construct($doctrine, $validator, $serviceMessage) {
+    /**
+     * SecurityService constructor.
+     *
+     * @param $doctrine
+     * @param $validator
+     * @param MessageService $serviceMessage
+     * @param array $securityParameter
+     */
+    public function __construct($doctrine, $validator, MessageService $serviceMessage,
+                                $securityParameter) {
         $this->doctrine = $doctrine;
         $this->em = $doctrine->getManager();
         $this->validator = $validator;
         $this->serviceMessage = $serviceMessage;
+        $this->securityParameter = $securityParameter;
     }
 
+    /**
+     * Authentification
+     *
+     * @param $json
+     * @return array
+     * @throws \Exception
+     */
     public function auth($json) {
         try {
             $data = json_decode($json);
@@ -44,10 +59,17 @@ class SecurityService {
                 'profil' => $profil,
             ];
         } catch (\Exception $ex) {
-            return $ex;
+            throw new \Exception("Erreur d'authentification : ".$ex->getMessage(), $ex->getCode());
         }
     }
 
+    /**
+     * Génère / renvoie un token pour l'utilisateur fourni
+     *
+     * @param User $user
+     * @return string
+     * @throws \Exception
+     */
     private function generateAndUpdateToken(User $user) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:TokenUser');
@@ -65,7 +87,7 @@ class SecurityService {
                 ->setTime(time());
             $errors = $this->validator->validate($tokenUser);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->persist($tokenUser);
             $this->em->flush();
@@ -75,10 +97,16 @@ class SecurityService {
         }
     }
 
+    /** Contrôle le token fourni et en génère / renvoie un nouveau
+     *
+     * @param $token
+     * @return string
+     * @throws \Exception
+     */
     public function checkAndUpdateToken($token) {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:TokenUser');
-            $oldTime = time() - self::TIME_ELAPSED;
+            $oldTime = time() - $this->securityParameter['token']['timeLimit'];
             $tokenUsersToDelete = $repo->getTokenUserToDelete($oldTime);
             foreach ($tokenUsersToDelete as $tokenUserToDelete) {
                 $this->em->remove($tokenUserToDelete);
@@ -89,14 +117,14 @@ class SecurityService {
                 'value' => $token,
             ]);
             if (!$tokenUser) {
-                throw new \Exception("Erreur lors du contrôle d'autentification.", 404);
+                throw new \Exception("Erreur lors du contrôle d'autentification.", Response::HTTP_UNAUTHORIZED);
             }
             $user = $tokenUser->getUser();
             $checkTokenUsersToDelete = $repo->findBy([
                 'user' => $user,
             ], ['id' => 'ASC']);
-            if (count($checkTokenUsersToDelete) >= self::KEEP_MAX_TOKEN) {
-                $tokenUsersToDelete = array_slice($checkTokenUsersToDelete, 0, self::KEEP_MAX_TOKEN);
+            if (count($checkTokenUsersToDelete) >= $this->securityParameter['token']['countLimit']) {
+                $tokenUsersToDelete = array_slice($checkTokenUsersToDelete, 0, $this->securityParameter['token']['countLimit']);
                 foreach ($tokenUsersToDelete as $tokenUserToDelete) {
                     $this->em->remove($tokenUserToDelete);
                 }
@@ -110,7 +138,7 @@ class SecurityService {
                 ->setTime(time());
             $errors = $this->validator->validate($newTokenUser);
             if (count($errors)>0) {
-                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             $this->em->persist($newTokenUser);
             $this->em->flush();

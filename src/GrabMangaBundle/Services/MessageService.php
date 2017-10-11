@@ -4,7 +4,12 @@ namespace GrabMangaBundle\Services;
 
 
 class MessageService {
-	
+
+    /**
+     * @param $erreurs
+     * @return bool|string
+     * @throws \Exception
+     */
 	public function formatErreurs($erreurs) {
 		try {
 			$messages = "";

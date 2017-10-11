@@ -23,3 +23,8 @@ parameters:
             src: 'tmp/ebook/src'
             dst: 'tmp/ebook/dst'
             pdf: 'tmp/ebook/pdf'
+
+    security:
+        token:
+            timeLimit: 900
+            countLimit: 10
