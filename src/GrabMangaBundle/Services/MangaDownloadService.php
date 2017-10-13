@@ -352,15 +352,13 @@ class MangaDownloadService {
     /**
      * Supprime un téléchargement depuis son identifiant
      *
-     * @param $id
+     * @param MangaDownload $mangaDownload
      * @throws \Exception
      */
-    public function removeOne($id) {
+    public function remove(MangaDownload $mangaDownload) {
         try {
-            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
-            $mangaDownload = $repo->find($id);
             if (!$mangaDownload) {
-                throw new \Exception("Impossible de récupérer le téléchargement ", Response::HTTP_NOT_FOUND);
+                throw new \Exception("Téléchargement inexistant", Response::HTTP_NOT_FOUND);
             }
             $this->em->remove($mangaDownload);
             $this->em->flush();

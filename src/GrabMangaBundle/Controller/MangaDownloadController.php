@@ -65,7 +65,8 @@ class MangaDownloadController extends GrabMangaController
      */
     public function removeDownloadAction($id) {
         try {
-            $this->get('manga_download.service')->removeOne($id);
+            $downloadManga = $this->get('manga_download.service')->getOne($id);
+            $this->get('generate.service')->remove($downloadManga);
             return $this->setResponse();
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());

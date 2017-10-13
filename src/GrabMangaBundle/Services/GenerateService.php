@@ -7,6 +7,7 @@ use GrabMangaBundle\Entity\MangaEbook;
 use GrabMangaBundle\Entity\MangaTome;
 use GrabMangaBundle\Entity\MangaChapter;
 use GrabMangaBundle\Entity\MangaDownload;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class GenerateService
@@ -409,7 +410,7 @@ class GenerateService {
      * @return string
      * @throws \Exception
      */
-    private function getPdfTomeName(MangaTome $tome) {
+    public function getPdfTomeName(MangaTome $tome) {
         try {
             return str_replace(
                 array(
@@ -438,7 +439,7 @@ class GenerateService {
      * @return string
      * @throws \Exception
      */
-    private function getPdfChapterName(MangaChapter $chapter) {
+    public function getPdfChapterName(MangaChapter $chapter) {
         try {
             return str_replace(
                     array(
@@ -467,7 +468,7 @@ class GenerateService {
      * @return string
      * @throws \Exception
      */
-    private function getBookName(Manga $manga) {
+    public function getBookName(Manga $manga) {
         try {
             return str_replace(
                     array(
@@ -514,6 +515,40 @@ class GenerateService {
             $zip->close();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de la compression du book : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * suppression physique et logique du téléchargement
+     *
+     * @param MangaDownload $mangaDownload
+     * @throws \Exception
+     */
+    public function remove(MangaDownload $mangaDownload) {
+        try {
+            $fileTodelete = null;
+            if ($mangaDownload->getManga()) {
+                $fileTodelete = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getBookName($mangaDownload->getManga()).'.zip');
+            } elseif ($mangaDownload->getMangaTome()) {
+                $fileTodelete = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getPdfTomeName($mangaDownload->getMangaTome()));
+            } elseif ($mangaDownload->getMangaChapter()) {
+                $fileTodelete = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getPdfChapterName($mangaDownload->getMangaChapter()));
+            }
+            if (!file_exists($fileTodelete)) {
+                throw new \Exception("Le téléchargement physique n'existe pas", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            if (!unlink($fileTodelete)) {
+                throw new \Exception("Impossible de supprimer le téléchargement physique", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            $this->serviceMangaDownload->remove($mangaDownload);
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de suppression du téléchargement de l'utilisateur : ". $ex->getMessage(), $ex->getCode());
         }
     }
 }
