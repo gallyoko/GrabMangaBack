@@ -1,0 +1,5 @@
+# synchro ebook
+*/30 * * * * su fwed -c "php /home/fwed/Workspace/Language/php/GrabManga/bin/console sync:manga:ebook >> /home/fwed/Workspace/Language/php/GrabManga/var/logs/manga_ebook_sync.log"
+
+# generate manga
+*/1 * * * * su fwed -c "php /home/fwed/Workspace/Language/php/GrabManga/bin/console generate:manga >> /home/fwed/Workspace/Language/php/GrabManga/var/logs/generate_manga.log"
