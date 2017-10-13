@@ -316,6 +316,59 @@ class MangaDownloadService {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getNextOne() {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "current" => false,
+                "finished" => false,
+            ], ["id" => "ASC"]);
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getCurrent() {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "current" => true,
+            ]);
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Supprime un téléchargement depuis son identifiant
+     *
+     * @param $id
+     * @throws \Exception
+     */
+    public function removeOne($id) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->find($id);
+            if (!$mangaDownload) {
+                throw new \Exception("Impossible de récupérer le téléchargement ", Response::HTTP_NOT_FOUND);
+            }
+            $this->em->remove($mangaDownload);
+            $this->em->flush();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de suppression du téléchargement de l'utilisateur : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
     /***************************************************
      ********************* API *************************
      ***************************************************/
@@ -347,5 +400,161 @@ class MangaDownloadService {
             throw new \Exception("Erreur de récupération des téléchargements des utilisateurs : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * récupère le téléchargement courant
+     *
+     * @param User $user
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
+    public function getCurrentByUser(User $user, $json = false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "user" => $user,
+                "current" => true,
+            ], ["id" => "DESC"]);
+            if ($json) {
+                $data = null;
+                if ($mangaDownload) {
+                    $data = $this->getJsonMangaDownload($mangaDownload);
+                }
+            } else {
+                $data = $mangaDownload;
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * récupère tous les téléchargements non terminés de l'utilisateur
+     *
+     * @param User $user
+     * @param bool $json
+     * @return array
+     * @throws \Exception
+     */
+    public function getAllWaitingByUser(User $user, $json = false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangasDownload = $repo->findBy([
+                "user" => $user,
+                "finished" => false,
+            ], ["id" => "ASC"]);
+            if ($json) {
+                $data = null;
+                if (count($mangasDownload) > 0) {
+                    $data = [];
+                    foreach ($mangasDownload as $mangaDownload) {
+                        $data[] = $this->getJsonMangaDownload($mangaDownload);
+                    }
+                }
+            } else {
+                $data = $mangasDownload;
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * récupère tous les téléchargements terminés de l'utilisateur
+     *
+     * @param User $user
+     * @param bool $json
+     * @return array|null
+     * @throws \Exception
+     */
+    public function getAllFinishedByUser(User $user, $json = false) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangasDownload = $repo->findBy([
+                "user" => $user,
+                "finished" => true,
+            ], ["id" => "ASC"]);
+            if ($json) {
+                $data = null;
+                if (count($mangasDownload) > 0) {
+                    $data = [];
+                    foreach ($mangasDownload as $mangaDownload) {
+                        $data[] = $this->getJsonMangaDownload($mangaDownload);
+                    }
+                }
+            } else {
+                $data = $mangasDownload;
+            }
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération des téléchargements de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private function getJsonMangaDownload(MangaDownload $mangaDownload) {
+        try {
+            $manga = null;
+            $mangaTome = null;
+            $mangaChapter = null;
+            $title = '';
+            if ($mangaDownload->getManga()){
+                $title = $mangaDownload->getManga()->getTitle();
+                $manga = [
+                    'id' => $mangaDownload->getManga()->getId(),
+                    'title' => $mangaDownload->getManga()->getTitle(),
+                ];
+            } elseif ($mangaDownload->getMangaTome()){
+                $title = $mangaDownload->getMangaTome()->getTitle();
+                $mangaTome = [
+                    'id' => $mangaDownload->getMangaTome()->getId(),
+                    'title' => $mangaDownload->getMangaTome()->getTitle(),
+                    'manga' => [
+                        'id' => $mangaDownload->getMangaTome()->getManga()->getId(),
+                        'title' => $mangaDownload->getMangaTome()->getManga()->getTitle(),
+                    ],
+                ];
+            } elseif ($mangaDownload->getMangaChapter()){
+                $title = $mangaDownload->getMangaChapter()->getTitle();
+                $tome = null;
+                if ($mangaDownload->getMangaChapter()->getMangaTome()) {
+                    $tome = [
+                        'id' => $mangaDownload->getMangaChapter()->getMangaTome()->getId(),
+                        'title' => $mangaDownload->getMangaChapter()->getMangaTome()->getTitle(),
+                    ];
+                }
+                $mangaChapter = [
+                    'id' => $mangaDownload->getMangaChapter()->getId(),
+                    'title' => $mangaDownload->getMangaChapter()->getTitle(),
+                    'manga' => [
+                        'id' => $mangaDownload->getMangaChapter()->getManga()->getId(),
+                        'title' => $mangaDownload->getMangaChapter()->getManga()->getTitle(),
+                    ],
+                    'mangaTome' => $tome,
+                ];
+            }
+            $progress = intval(($mangaDownload->getCurrentPageDecode() / $mangaDownload->getMaxPage()) * 100);
+            $data = [
+                "id" => $mangaDownload->getId(),
+                "title" => $title,
+                "currentPageDecode" => $mangaDownload->getCurrentPageDecode(),
+                "currentPagePdf" => $mangaDownload->getCurrentPagePdf(),
+                "countPage" => $mangaDownload->getMaxPage(),
+                "progress" => $progress,
+                "currentZip" => $mangaDownload->getCurrentFileZip(),
+                "countZip" => $mangaDownload->getMaxFileZip(),
+                "manga" => $manga,
+                "mangaTome" => $mangaTome,
+                "mangaChapter" => $mangaChapter,
+            ];
+            return $data;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de formatage du téléchargement au format json : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

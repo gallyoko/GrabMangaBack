@@ -97,14 +97,23 @@ class SecurityService {
         }
     }
 
-    /** Contrôle le token fourni et en génère / renvoie un nouveau
+    /**
+     * Contrôle le token fourni et en génère / renvoie un nouveau
      *
      * @param $token
+     * @param bool $json
      * @return string
      * @throws \Exception
      */
-    public function checkAndUpdateToken($token) {
+    public function checkAndUpdateToken($token, $json=false) {
         try {
+            if ($json) {
+                $data = json_decode($token);
+                if (!isset($data->token)) {
+                    throw new \Exception("Veuillez fournir un token.", Response::HTTP_UNAUTHORIZED);
+                }
+                $token = $data->token;
+            }
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:TokenUser');
             $oldTime = time() - $this->securityParameter['token']['timeLimit'];
             $tokenUsersToDelete = $repo->getTokenUserToDelete($oldTime);
@@ -143,6 +152,11 @@ class SecurityService {
             $this->em->persist($newTokenUser);
             $this->em->flush();
 
+            if ($json) {
+                $newToken = [
+                    'token' => $newToken,
+                ];
+            }
             return $newToken;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors du contrôle et la mise à jour du token utilisateur : ".$ex->getMessage(), $ex->getCode());
@@ -166,6 +180,26 @@ class SecurityService {
                 throw new \Exception("Erreur lors du contrôle d'autentification.", Response::HTTP_UNAUTHORIZED);
             }
             return $tokenUser->getUser();
+        } catch (\Exception $ex) {
+            throw new \Exception("Impossible de récupérer l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * retourne l'utilisateur correspondant à l'identifiant fourni
+     *
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
+    public function getUserById($id) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:User');
+            $user = $repo->find($id);
+            if(!$user) {
+                throw new \Exception("Erreur lors de la récupération de l'utilisateur.", Response::HTTP_UNAUTHORIZED);
+            }
+            return $user;
         } catch (\Exception $ex) {
             throw new \Exception("Impossible de récupérer l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

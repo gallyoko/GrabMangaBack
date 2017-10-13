@@ -29,7 +29,7 @@ class GrabMangaController extends Controller
      * @return array
      * @throws \Exception
      */
-    public function setResponse($data) {
+    public function setResponse($data = null) {
         try {
             if (!$this->token) {
                 throw new \Exception("Aucun token défini", Response::HTTP_INTERNAL_SERVER_ERROR);

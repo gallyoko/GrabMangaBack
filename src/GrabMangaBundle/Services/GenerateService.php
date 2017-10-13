@@ -229,18 +229,11 @@ class GenerateService {
     private function savePageImage(MangaEbook $mangaEbook, MangaPage $mangaPage) {
         try {
             $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()).$mangaPage->getPage();
-            $page = str_replace(['.png', '.PNG', '.gif', '.GIF', '.JPG'], '.jpg', $mangaPage->getPage());
-            $fileTmp = $this->dirSrc . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
-                DIRECTORY_SEPARATOR . $page;
+            $page = str_replace(['.PNG', '.GIF', '.JPG'], ['.png', '.gif', '.jpg'], $mangaPage->getPage());
             $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
                 DIRECTORY_SEPARATOR . $page;
-            $current = imagecreatefromjpeg($url);
-            if ($current) {
-                imagejpeg($current, $fileTmp);
-                imagedestroy($current);
-                copy($fileTmp, $fileEnd);
-                unlink($fileTmp);
-            }
+            $current = file_get_contents($url);
+            file_put_contents($fileEnd, $current);
         } catch (\Exception $ex) {
             //throw new \Exception("Erreur lors de l'enregistrement de l'image : ". $ex->getMessage(), $ex->getCode());
         }

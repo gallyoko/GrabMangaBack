@@ -22,4 +22,15 @@ class SecurityController extends Controller
         }
     }
 
+    /**
+     * @Rest\View()
+     * @Rest\Post("/auth/check")
+     */
+    public function authCheckAction(Request $request) {
+        try {
+            return $this->get('security.service')->checkAndUpdateToken($request->getContent(), true);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
 }

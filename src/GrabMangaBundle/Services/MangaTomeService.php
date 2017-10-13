@@ -54,11 +54,11 @@ class MangaTomeService {
     public function getList() {
         try {
             $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaTome');
-            $mangaTome = $repo->findAll();
-            if(!$mangaTome) {
+            $mangaTomes = $repo->findAll();
+            if(count($mangaTomes)==0) {
                 throw new \Exception("Aucun Tome.", Response::HTTP_NOT_FOUND);
             }
-            return $mangaTome;
+            return $mangaTomes;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de récupération des tomes : ". $ex->getMessage(), $ex->getCode());
         }
@@ -92,6 +92,21 @@ class MangaTomeService {
             }
         } catch (\Exception $ex) {
             throw new \Exception("Erreur d'enregistrement d'un tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function updateCover(MangaTome $mangaTome) {
+        try {
+            $em = $this->doctrine->getManager();
+            $mangaTome->setCover();
+            $errors = $this->validator->validate($mangaTome);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), 500);
+            }
+            $em->merge($mangaTome);
+            $em->flush();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur d'enregistrement de la couverture du tome du manga : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

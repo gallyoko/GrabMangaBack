@@ -120,11 +120,15 @@ class MangaChapterService {
             if ($json) {
                 $data = [];
                 foreach ($mangaChapters as $mangaChapter) {
+                    $tomeId = null;
+                    if ($mangaChapter->getMangaTome()) {
+                        $tomeId = $mangaChapter->getMangaTome()->getId();
+                    }
                     $data[] = [
                         "id" => $mangaChapter->getId(),
                         "title" => $mangaChapter->getTitle(),
                         "url" => $mangaChapter->getUrl(),
-                        "tomeId" => $mangaChapter->getMangaTome()->getId(),
+                        "tomeId" => $tomeId,
                     ];
                 }
             } else {

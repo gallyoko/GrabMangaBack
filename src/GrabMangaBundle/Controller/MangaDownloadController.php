@@ -20,4 +20,56 @@ class MangaDownloadController extends GrabMangaController
         }
     }
 
+    /**
+     * @Rest\View()
+     * @Rest\Get("/download/user/current/{token}")
+     */
+    public function getDownloadUserCurrentAction() {
+        try {
+            $data = $this->get('manga_download.service')->getCurrentByUser($this->getUser(), true);
+            return $this->setResponse($data);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/downloads/user/waiting/{token}")
+     */
+    public function getDownloadUserWaitingAction() {
+        try {
+            $data = $this->get('manga_download.service')->getAllWaitingByUser($this->getUser(), true);
+            return $this->setResponse($data);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/downloads/user/finished/{token}")
+     */
+    public function getDownloadUserFinishedAction() {
+        try {
+            $data = $this->get('manga_download.service')->getAllFinishedByUser($this->getUser(), true);
+            return $this->setResponse($data);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Delete("/download/remove/{token}/{id}")
+     */
+    public function removeDownloadAction($id) {
+        try {
+            $this->get('manga_download.service')->removeOne($id);
+            return $this->setResponse();
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
 }
