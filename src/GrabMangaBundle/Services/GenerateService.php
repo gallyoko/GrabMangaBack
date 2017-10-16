@@ -519,6 +519,38 @@ class GenerateService {
     }
 
     /**
+     * récupération du fichier correspondant au manga à télécharger
+     *
+     * @param MangaDownload $mangaDownload
+     * @return bool|null|string
+     * @throws \Exception
+     */
+    public function getFileDownload(MangaDownload $mangaDownload) {
+        try {
+            $fileTodownload = null;
+            if ($mangaDownload->getManga()) {
+                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getBookName($mangaDownload->getManga()).'.zip');
+            } elseif ($mangaDownload->getMangaTome()) {
+                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getPdfTomeName($mangaDownload->getMangaTome()));
+            } elseif ($mangaDownload->getMangaChapter()) {
+                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                    $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
+                    $this->getPdfChapterName($mangaDownload->getMangaChapter()));
+            }
+            if (!file_exists($fileTodownload)) {
+                throw new \Exception("Le téléchargement physique n'existe pas", Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            return $fileTodownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du fichier de téléchargement de l'utilisateur : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * suppression physique et logique du téléchargement
      *
      * @param MangaDownload $mangaDownload
