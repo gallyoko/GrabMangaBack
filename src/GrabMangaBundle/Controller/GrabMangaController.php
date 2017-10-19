@@ -20,7 +20,7 @@ class GrabMangaController extends Controller
             $currentToken = $request->attributes->get('token');
             $this->token = $this->get('security.service')->checkAndUpdateToken($currentToken);
         } catch (\Exception $ex) {
-            throw new \Exception("Alerte sécurité : ".$ex->getMessage(), $ex->getCode());
+            throw new \Exception("401 - Alerte sécurité : ".$ex->getMessage(), Response::HTTP_UNAUTHORIZED);
         }
     }
 

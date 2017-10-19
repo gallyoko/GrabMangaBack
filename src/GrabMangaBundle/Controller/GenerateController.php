@@ -16,7 +16,6 @@ class GenerateController extends GrabMangaController
         try {
             $manga = $this->get('manga.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveBook($this->getUser(), $manga);
-            //$data = $this->get('generate.service')->generateByBook($manga, $download);
             return $this->setResponse(['downloadId' => $download->getId()]);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
@@ -31,7 +30,6 @@ class GenerateController extends GrabMangaController
         try {
             $tome = $this->get('manga_tome.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveTome($this->getUser(), $tome);
-            //$data = $this->get('generate.service')->generateByTome($tome, $download);
             return $this->setResponse(['downloadId' => $download->getId()]);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
@@ -46,8 +44,25 @@ class GenerateController extends GrabMangaController
         try {
             $chapter = $this->get('manga_chapter.service')->getOne($id);
             $download = $this->get('manga_download.service')->saveChapter($this->getUser(), $chapter);
-            //$data = $this->get('generate.service')->generateByChapter($chapter, $download);
             return $this->setResponse(['downloadId' => $download->getId()]);
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
+    /**
+     * @Rest\View()
+     * @Rest\Get("/archive/name/{token}/{archiveId}")
+     */
+    public function getArchiveNameAction($archiveId) {
+        try {
+            $downloadManga = $this->get('manga_download.service')->getOne($archiveId);
+            $path = $this->get('generate.service')->getFileDownload($downloadManga);
+            $name = basename($path);
+            return $this->setResponse([
+                'name' => $name,
+                'size' => filesize($path),
+            ]);
         } catch (\Exception $ex) {
             return View::create(['message' => $ex->getMessage()], $ex->getCode());
         }

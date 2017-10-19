@@ -93,7 +93,7 @@ class GenerateService {
             }
             $this->serviceMangaDownload->setMaxFileZip(count($pdfFilenames));
             $bookFilename = $this->getBookName($manga);
-            $this->compressBook($bookFilename);
+            $this->compressBook($bookFilename, $pdfFilenames);
             $this->cleanPdfDirectory($pdfFilenames);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
@@ -494,9 +494,10 @@ class GenerateService {
      * Compresse le contenu du répertoire PDF au format zip
      *
      * @param $bookFilename
+     * @param array $pdfFilenames
      * @throws \Exception
      */
-    private function compressBook($bookFilename) {
+    private function compressBook($bookFilename, $pdfFilenames = []) {
         try {
             $zip = new \ZipArchive;
             $realPathPdf = realpath($this->dirPdf);
@@ -506,7 +507,8 @@ class GenerateService {
             $numFileZip = 0;
             $elementsToCompress = scandir($realPathPdf);
             foreach ($elementsToCompress as $elementToCompress) {
-                if ($elementToCompress != '.' && $elementToCompress != '..' && $elementToCompress != $bookFilename . '.zip') {
+                if ($elementToCompress != '.' && $elementToCompress != '..'
+                    && $elementToCompress != $bookFilename . '.zip' && in_array(basename($elementToCompress), $pdfFilenames)) {
                     $zip->addFile($realPathPdf . DIRECTORY_SEPARATOR . $elementToCompress, basename($elementToCompress));
                     $numFileZip++;
                     $this->serviceMangaDownload->setCurrentFileZip($numFileZip);

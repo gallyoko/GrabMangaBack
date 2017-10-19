@@ -22,6 +22,6 @@ generate:
     type:     rest
     resource: GrabMangaBundle\Controller\GenerateController
 
-download:
+archive.download:
     path:     /archive/download/{token}/{id}
     defaults: { _controller: GrabMangaBundle:Archive:download }
