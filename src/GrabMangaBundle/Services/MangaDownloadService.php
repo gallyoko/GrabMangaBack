@@ -497,15 +497,18 @@ class MangaDownloadService {
             $manga = null;
             $mangaTome = null;
             $mangaChapter = null;
+            $mangaTitle = null;
             $title = '';
             if ($mangaDownload->getManga()){
                 $title = $mangaDownload->getManga()->getTitle();
+                $mangaTitle = $mangaDownload->getManga()->getTitle();
                 $manga = [
                     'id' => $mangaDownload->getManga()->getId(),
                     'title' => $mangaDownload->getManga()->getTitle(),
                 ];
             } elseif ($mangaDownload->getMangaTome()){
                 $title = $mangaDownload->getMangaTome()->getTitle();
+                $mangaTitle = $mangaDownload->getMangaTome()->getManga()->getTitle();
                 $mangaTome = [
                     'id' => $mangaDownload->getMangaTome()->getId(),
                     'title' => $mangaDownload->getMangaTome()->getTitle(),
@@ -516,6 +519,7 @@ class MangaDownloadService {
                 ];
             } elseif ($mangaDownload->getMangaChapter()){
                 $title = $mangaDownload->getMangaChapter()->getTitle();
+                $mangaTitle = $mangaDownload->getMangaChapter()->getManga()->getTitle();
                 $tome = null;
                 if ($mangaDownload->getMangaChapter()->getMangaTome()) {
                     $tome = [
@@ -543,6 +547,7 @@ class MangaDownloadService {
                 "progress" => $progress,
                 "currentZip" => $mangaDownload->getCurrentFileZip(),
                 "countZip" => $mangaDownload->getMaxFileZip(),
+                "mangaTitle" => $mangaTitle,
                 "manga" => $manga,
                 "mangaTome" => $mangaTome,
                 "mangaChapter" => $mangaChapter,
