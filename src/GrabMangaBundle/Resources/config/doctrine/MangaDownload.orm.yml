@@ -69,6 +69,13 @@ GrabMangaBundle\Entity\MangaDownload:
             nullable: false
             options:
                 default: '0'
+        filesize:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+                default: '0'
+            column: filesize
     manyToOne:
         manga:
             targetEntity: Manga

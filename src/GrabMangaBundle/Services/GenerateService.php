@@ -81,7 +81,7 @@ class GenerateService {
                 $pdfFilename = $this->getPdfTomeName($tome);
                 $pdfFilenames[] = $pdfFilename;
                 $this->imageToPdf($pdfFilename);
-                $this->cleanDirectory($this->dirDest);
+                $this->cleanDirectory($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId());
             }
             $chapters = $this->serviceMangaChapter->getByMangaWithoutTome($manga);
             foreach ($chapters as $chapter) {
@@ -89,12 +89,15 @@ class GenerateService {
                 $pdfFilename = $this->getPdfChapterName($chapter);
                 $pdfFilenames[] = $pdfFilename;
                 $this->imageToPdf($pdfFilename);
-                $this->cleanDirectory($this->dirDest);
+                $this->cleanDirectory($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId());
             }
             $this->serviceMangaDownload->setMaxFileZip(count($pdfFilenames));
             $bookFilename = $this->getBookName($manga);
             $this->compressBook($bookFilename, $pdfFilenames);
             $this->cleanPdfDirectory($pdfFilenames);
+            $filename = $this->getFileDownload($download);
+            $filesize = filesize($filename);
+            $this->serviceMangaDownload->setFilesize($filesize);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
@@ -120,7 +123,10 @@ class GenerateService {
             $this->aspireTome($tome);
             $pdfFilename = $this->getPdfTomeName($tome);
             $this->imageToPdf($pdfFilename);
-            $this->cleanDirectory($this->dirDest);
+            $this->cleanDirectory($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId());
+            $filename = $this->getFileDownload($download);
+            $filesize = filesize($filename);
+            $this->serviceMangaDownload->setFilesize($filesize);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
@@ -146,7 +152,10 @@ class GenerateService {
             $this->aspireChapter($chapter);
             $pdfFilename = $this->getPdfChapterName($chapter);
             $this->imageToPdf($pdfFilename);
-            $this->cleanDirectory($this->dirDest);
+            $this->cleanDirectory($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId());
+            $filename = $this->getFileDownload($download);
+            $filesize = filesize($filename);
+            $this->serviceMangaDownload->setFilesize($filesize);
             $this->serviceMangaDownload->tagFinished();
             gc_collect_cycles();
             $timestamp = time() - $timestampIn;
@@ -168,7 +177,7 @@ class GenerateService {
             $this->user = $download->getUser();
             $this->serviceMangaDownload->setMangaDownload($download);
             $this->checkDirectories();
-            $this->cleanDirectory($this->dirSrc);
+            $this->cleanDirectory($this->dirSrc . DIRECTORY_SEPARATOR.$this->user->getId());
             $this->serviceMangaDownload->tagCurrent();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de l'initialisation de la génération : ". $ex->getMessage(), $ex->getCode());
@@ -213,7 +222,7 @@ class GenerateService {
                     $numPageDecode ++;
                     $this->serviceMangaDownload->setCurrentPageDecode($numPageDecode);
                 }
-                rmdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId());
+                rmdir($this->dirSrc .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId());
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
@@ -231,7 +240,7 @@ class GenerateService {
         try {
             $url = str_replace(' ', '%20',$mangaEbook->getUrlMask()).$mangaPage->getPage();
             $page = str_replace(['.PNG', '.GIF', '.JPG'], ['.png', '.gif', '.jpg'], $mangaPage->getPage());
-            $fileEnd = $this->dirDest . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
+            $fileEnd = $this->dirDest .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $mangaEbook->getMangaChapter()->getId() .
                 DIRECTORY_SEPARATOR . $page;
             $current = file_get_contents($url);
             file_put_contents($fileEnd, $current);
@@ -252,14 +261,14 @@ class GenerateService {
             $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
             $pdf->SetAutoPageBreak(false, 0);
             $numImage = $this->serviceMangaDownload->getCurrentPagePdf();
-            $directories = scandir($this->dirDest, SCANDIR_SORT_DESCENDING);
+            $directories = scandir($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId(), SCANDIR_SORT_DESCENDING);
             foreach ($directories as $directory) {
                 if ($directory != '.' && $directory != '..') {
-                    $images = scandir($this->dirDest . DIRECTORY_SEPARATOR . $directory);
+                    $images = scandir($this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $directory);
                     foreach ($images as $image) {
                         if ($image != '.' && $image != '..') {
                             $imageInfo = getimagesize(
-                                $this->dirDest . DIRECTORY_SEPARATOR . $directory .
+                                $this->dirDest . DIRECTORY_SEPARATOR.$this->user->getId(). DIRECTORY_SEPARATOR . $directory .
                                 DIRECTORY_SEPARATOR . $image);
                             $width = $imageInfo[0];
                             $height = $imageInfo[1];
@@ -277,7 +286,7 @@ class GenerateService {
                                 $pdf->AddPage('P');
                             }
                             $pdf->Image(
-                                $this->dirDest . DIRECTORY_SEPARATOR . $directory .
+                                $this->dirDest .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $directory .
                                 DIRECTORY_SEPARATOR . $image, 0, 0, $size[0], $size[1],
                                 '', '', '', true, 300, '', false, false, 0);
                             $pdf->setPageMark();
@@ -287,7 +296,7 @@ class GenerateService {
                     }
                 }
             }
-            $pdf->Output($this->dirPdf . DIRECTORY_SEPARATOR . $pdfName, 'F');
+            $pdf->Output($this->dirPdf .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $pdfName, 'F');
             gc_collect_cycles();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur lors de la conversion image vers pdf : ". $ex->getMessage(), $ex->getCode());
@@ -337,7 +346,7 @@ class GenerateService {
         try {
             foreach ($pdfFilenames as $pdfFilename) {
                 unlink(
-                    $this->dirPdf . DIRECTORY_SEPARATOR . $pdfFilename);
+                    $this->dirPdf .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $pdfFilename);
             }
             gc_collect_cycles();
         } catch (\Exception $ex) {
@@ -352,23 +361,19 @@ class GenerateService {
      */
     private function checkDirectories() {
         try {
-            $this->dirSrc = $this->dirSrc.DIRECTORY_SEPARATOR.$this->user->getId();
-            $this->dirDest = $this->dirDest.DIRECTORY_SEPARATOR.$this->user->getId();
-            $this->dirPdf = $this->dirPdf.DIRECTORY_SEPARATOR.$this->user->getId();
-
-            if (! is_dir($this->dirSrc)) {
-                if (! mkdir($this->dirSrc, 0777, true)) {
-                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirSrc);
+            if (! is_dir($this->dirSrc.DIRECTORY_SEPARATOR.$this->user->getId())) {
+                if (! mkdir($this->dirSrc.DIRECTORY_SEPARATOR.$this->user->getId(), 0777, true)) {
+                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirSrc.DIRECTORY_SEPARATOR.$this->user->getId());
                 }
             }
-            if (! is_dir($this->dirDest)) {
-                if (! mkdir($this->dirDest, 0777, true)) {
-                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirDest);
+            if (! is_dir($this->dirDest.DIRECTORY_SEPARATOR.$this->user->getId())) {
+                if (! mkdir($this->dirDest.DIRECTORY_SEPARATOR.$this->user->getId(), 0777, true)) {
+                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirDest.DIRECTORY_SEPARATOR.$this->user->getId());
                 }
             }
-            if (! is_dir($this->dirPdf)) {
-                if (! mkdir($this->dirPdf, 0777, true)) {
-                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirPdf);
+            if (! is_dir($this->dirPdf.DIRECTORY_SEPARATOR.$this->user->getId())) {
+                if (! mkdir($this->dirPdf.DIRECTORY_SEPARATOR.$this->user->getId(), 0777, true)) {
+                    throw new \Exception('Echec lors de la création du répertoire ' . $this->dirPdf.DIRECTORY_SEPARATOR.$this->user->getId());
                 }
             }
         } catch (\Exception $ex) {
@@ -384,18 +389,18 @@ class GenerateService {
      */
     private function checkChapterDirectories(MangaChapter $chapter) {
         try {
-            if (! is_dir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId())) {
-                if (! mkdir($this->dirSrc . DIRECTORY_SEPARATOR . $chapter->getId(), 0777, true)) {
+            if (! is_dir($this->dirSrc .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId())) {
+                if (! mkdir($this->dirSrc .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId(), 0777, true)) {
                     throw new \Exception(
                         'Echec lors de la création du répertoire ' . $this->dirSrc .
-                        DIRECTORY_SEPARATOR . $chapter->getId());
+                        DIRECTORY_SEPARATOR.$this->user->getId() .DIRECTORY_SEPARATOR . $chapter->getId());
                 }
             }
-            if (! is_dir($this->dirDest . DIRECTORY_SEPARATOR . $chapter->getId())) {
-                if (! mkdir($this->dirDest . DIRECTORY_SEPARATOR . $chapter->getId(), 0777, true)) {
+            if (! is_dir($this->dirDest .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId())) {
+                if (! mkdir($this->dirDest .DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId(), 0777, true)) {
                     throw new \Exception(
                         'Echec lors de la création du répertoire ' . $this->dirDest .
-                        DIRECTORY_SEPARATOR . $chapter->getId());
+                        DIRECTORY_SEPARATOR.$this->user->getId() . DIRECTORY_SEPARATOR . $chapter->getId());
                 }
             }
         } catch (\Exception $ex) {
@@ -500,7 +505,7 @@ class GenerateService {
     private function compressBook($bookFilename, $pdfFilenames = []) {
         try {
             $zip = new \ZipArchive;
-            $realPathPdf = realpath($this->dirPdf);
+            $realPathPdf = realpath($this->dirPdf .DIRECTORY_SEPARATOR.$this->user->getId());
             if ($zip->open($realPathPdf . DIRECTORY_SEPARATOR . $bookFilename . '.zip', \ZIPARCHIVE::CREATE | \ZIPARCHIVE::OVERWRITE) === FALSE) {
                 throw new \Exception("Erreur lors de la création du book compressé", 500);
             }
@@ -531,20 +536,20 @@ class GenerateService {
         try {
             $fileTodownload = null;
             if ($mangaDownload->getManga()) {
-                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                $fileTodownload = $this->dirPdf.DIRECTORY_SEPARATOR.
                     $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
-                    $this->getBookName($mangaDownload->getManga()).'.zip');
+                    $this->getBookName($mangaDownload->getManga()).'.zip';
             } elseif ($mangaDownload->getMangaTome()) {
-                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                $fileTodownload = $this->dirPdf.DIRECTORY_SEPARATOR.
                     $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
-                    $this->getPdfTomeName($mangaDownload->getMangaTome()));
+                    $this->getPdfTomeName($mangaDownload->getMangaTome());
             } elseif ($mangaDownload->getMangaChapter()) {
-                $fileTodownload = realpath($this->dirPdf.DIRECTORY_SEPARATOR.
+                $fileTodownload = $this->dirPdf.DIRECTORY_SEPARATOR.
                     $mangaDownload->getUser()->getId().DIRECTORY_SEPARATOR.
-                    $this->getPdfChapterName($mangaDownload->getMangaChapter()));
+                    $this->getPdfChapterName($mangaDownload->getMangaChapter());
             }
             if (!file_exists($fileTodownload)) {
-                throw new \Exception("Le téléchargement physique n'existe pas", Response::HTTP_INTERNAL_SERVER_ERROR);
+                throw new \Exception("Le téléchargement physique <".$fileTodownload."> n'existe pas", Response::HTTP_INTERNAL_SERVER_ERROR);
             }
             return $fileTodownload;
         } catch (\Exception $ex) {

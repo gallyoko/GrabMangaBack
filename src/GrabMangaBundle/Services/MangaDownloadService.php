@@ -180,6 +180,27 @@ class MangaDownloadService {
     }
 
     /**
+     * @param $filesize
+     * @throws \Exception
+     */
+    public function setFilesize($filesize) {
+        try {
+            if (!$this->mangaDownload) {
+                throw new \Exception("Aucun téléchargement en cours", Response::HTTP_NOT_FOUND);
+            }
+            $this->mangaDownload->setFilesize($filesize);
+            $errors = $this->validator->validate($this->mangaDownload);
+            if (count($errors)>0) {
+                throw new \Exception($this->serviceMessage->formatErreurs($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            $this->em->merge($this->mangaDownload);
+            $this->em->flush();
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de la mise à jour de la taille du fichier : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @throws \Exception
      */
     public function tagFinished() {
@@ -476,7 +497,7 @@ class MangaDownloadService {
                 "finished" => true,
             ], ["id" => "ASC"]);
             if ($json) {
-                $data = null;
+                $data = [];
                 if (count($mangasDownload) > 0) {
                     $data = [];
                     foreach ($mangasDownload as $mangaDownload) {
@@ -537,6 +558,7 @@ class MangaDownloadService {
                     'mangaTome' => $tome,
                 ];
             }
+            $size = number_format($mangaDownload->getFilesize() / 1000000, 2).' Mo';
             $progress = intval(($mangaDownload->getCurrentPageDecode() / $mangaDownload->getMaxPage()) * 100);
             $data = [
                 "id" => $mangaDownload->getId(),
@@ -548,6 +570,7 @@ class MangaDownloadService {
                 "currentZip" => $mangaDownload->getCurrentFileZip(),
                 "countZip" => $mangaDownload->getMaxFileZip(),
                 "mangaTitle" => $mangaTitle,
+                "size" => $size,
                 "manga" => $manga,
                 "mangaTome" => $mangaTome,
                 "mangaChapter" => $mangaChapter,

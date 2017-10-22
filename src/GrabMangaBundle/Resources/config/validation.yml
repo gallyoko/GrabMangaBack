@@ -128,6 +128,12 @@ GrabMangaBundle\Entity\MangaDownload:
                 message: "L'attribut <finished> doit etre de type <boolean> !"
             - NotNull:
                 message: "L'attribut <finished> est obligatoire !"
+        filesize:
+            - Type:
+                type: integer
+                message: "L'attribut <filesize> doit etre de type <integer> !"
+            - NotBlank:
+                message: "L'attribut <filesize> est obligatoire !"
         manga:
             - Type:
                 type: GrabMangaBundle\Entity\Manga

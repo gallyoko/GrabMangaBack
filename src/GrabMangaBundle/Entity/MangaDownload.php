@@ -48,6 +48,11 @@ class MangaDownload
     private $finished = false;
 
     /**
+     * @var integer
+     */
+    private $filesize = 0;
+
+    /**
      * @var \GrabMangaBundle\Entity\Manga
      */
     private $manga;
@@ -244,6 +249,30 @@ class MangaDownload
     public function getFinished()
     {
         return $this->finished;
+    }
+
+    /**
+     * Set filesize
+     *
+     * @param integer $filesize
+     *
+     * @return MangaDownload
+     */
+    public function setFilesize($filesize)
+    {
+        $this->filesize = $filesize;
+
+        return $this;
+    }
+
+    /**
+     * Get filesize
+     *
+     * @return integer
+     */
+    public function getFilesize()
+    {
+        return $this->filesize;
     }
 
     /**
