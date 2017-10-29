@@ -167,6 +167,17 @@ GrabMangaBundle\Entity\MangaEbook:
                 type: GrabMangaBundle\Entity\MangaChapter
                 message: "L'attribut <mangaChapter> de type <MangaChapter> est obligatoire !"
 
+GrabMangaBundle\Entity\MangaFavorite:
+    properties:
+        manga:
+            - Type:
+                type: GrabMangaBundle\Entity\Manga
+                message: "L'attribut <manga> de type <Manga> est obligatoire !"
+        user:
+            - Type:
+                type: GrabMangaBundle\Entity\User
+                message: "L'attribut <user> de type <User> est obligatoire !"
+
 GrabMangaBundle\Entity\MangaMaj:
     properties:
         timestamp:

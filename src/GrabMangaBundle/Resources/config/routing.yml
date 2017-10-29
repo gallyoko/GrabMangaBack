@@ -6,6 +6,10 @@ manga:
     type:     rest
     resource: GrabMangaBundle\Controller\MangaController
 
+manga.favorite:
+    type:     rest
+    resource: GrabMangaBundle\Controller\MangaFavoriteController
+
 manga.tome:
     type:     rest
     resource: GrabMangaBundle\Controller\MangaTomeController
