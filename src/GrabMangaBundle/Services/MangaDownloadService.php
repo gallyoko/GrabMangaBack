@@ -559,7 +559,12 @@ class MangaDownloadService {
                 ];
             }
             $size = number_format($mangaDownload->getFilesize() / 1000000, 2).' Mo';
-            $progress = intval(($mangaDownload->getCurrentPageDecode() / $mangaDownload->getMaxPage()) * 100);
+            if ($mangaDownload->getMaxPage() > 0 ) {
+                $progress = intval(($mangaDownload->getCurrentPageDecode() / $mangaDownload->getMaxPage()) * 100);
+            } else {
+                $progress = 0;
+                $title .= ' (ERREUR)';
+            }
             $data = [
                 "id" => $mangaDownload->getId(),
                 "title" => $title,
@@ -575,6 +580,7 @@ class MangaDownloadService {
                 "mangaTome" => $mangaTome,
                 "mangaChapter" => $mangaChapter,
             ];
+
             return $data;
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de formatage du téléchargement au format json : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
