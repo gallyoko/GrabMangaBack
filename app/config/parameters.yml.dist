@@ -27,4 +27,4 @@ parameters:
     security:
         token:
             timeLimit: 900
-            countLimit: 20
+            countLimit: 1000

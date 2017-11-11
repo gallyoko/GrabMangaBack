@@ -90,6 +90,17 @@ class MangaDownloadService {
      */
     public function saveBook(User $user, Manga $manga) {
         try {
+            $mangaDownload = $this->getByUserAndManga($user, $manga);
+            if ($mangaDownload) {
+                if ($mangaDownload->getFinished()) {
+                    $msg = 'Ce manga fait déjà parti de vos archives';
+                } elseif ($mangaDownload->getCurrent()) {
+                    $msg = 'Ce manga est en cours de téléchargement';
+                } else {
+                    $msg = 'La demande de génération a déjà été effectuée pour ce manga';
+                }
+                throw new \Exception($msg, Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             $mangaDownload = new MangaDownload();
             $mangaChapters = $this->serviceMangaChapter->getByManga($manga);
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters($mangaChapters);
@@ -116,6 +127,17 @@ class MangaDownloadService {
      */
     public function saveTome(User $user, MangaTome $mangaTome) {
         try {
+            $mangaDownload = $this->getByUserAndTome($user, $mangaTome);
+            if ($mangaDownload) {
+                if ($mangaDownload->getFinished()) {
+                    $msg = 'Ce tome fait déjà parti de vos archives';
+                } elseif ($mangaDownload->getCurrent()) {
+                    $msg = 'Ce tome est en cours de téléchargement';
+                } else {
+                    $msg = 'La demande de génération a déjà été effectuée pour ce tome';
+                }
+                throw new \Exception($msg, Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             $mangaDownload = new MangaDownload();
             $mangaChapters = $this->serviceMangaChapter->getByTome($mangaTome);
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters($mangaChapters);
@@ -142,6 +164,17 @@ class MangaDownloadService {
      */
     public function saveChapter(User $user, MangaChapter $mangaChapter) {
         try {
+            $mangaDownload = $this->getByUserAndChapter($user, $mangaChapter);
+            if ($mangaDownload) {
+                if ($mangaDownload->getFinished()) {
+                    $msg = 'Ce chapitre fait déjà parti de vos archives';
+                } elseif ($mangaDownload->getCurrent()) {
+                    $msg = 'Ce chapitre est en cours de téléchargement';
+                } else {
+                    $msg = 'La demande de génération a déjà été effectuée pour ce chapitre';
+                }
+                throw new \Exception($msg, Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             $mangaDownload = new MangaDownload();
             $maxPages = (int) $this->serviceMangaEbook->getCountPageByChapters([$mangaChapter]);
             $mangaDownload->setMangaChapter($mangaChapter)
@@ -385,6 +418,63 @@ class MangaDownloadService {
             $this->em->flush();
         } catch (\Exception $ex) {
             throw new \Exception("Erreur de suppression du téléchargement de l'utilisateur : ". $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param Manga $manga
+     * @return mixed
+     * @throws \Exception
+     */
+    private function getByUserAndManga(User $user, Manga $manga) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "user" => $user,
+                "manga" => $manga,
+            ]);
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du téléchargement du manga de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param MangaTome $mangaTome
+     * @return mixed
+     * @throws \Exception
+     */
+    private function getByUserAndTome(User $user, MangaTome $mangaTome) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "user" => $user,
+                "mangaTome" => $mangaTome,
+            ]);
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du téléchargement du tome de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param MangaChapter $mangaChapter
+     * @return mixed
+     * @throws \Exception
+     */
+    private function getByUserAndChapter(User $user, MangaChapter $mangaChapter) {
+        try {
+            $repo = $this->doctrine->getManager()->getRepository('GrabMangaBundle:MangaDownload');
+            $mangaDownload = $repo->findOneBy([
+                "user" => $user,
+                "mangaChapter" => $mangaChapter,
+            ]);
+            return $mangaDownload;
+        } catch (\Exception $ex) {
+            throw new \Exception("Erreur de récupération du téléchargement du chapitre de l'utilisateur : ". $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
