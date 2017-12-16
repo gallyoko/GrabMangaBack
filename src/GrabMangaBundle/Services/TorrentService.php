@@ -73,7 +73,7 @@ class TorrentService {
             }
             foreach ($dataToFormat as $tvShow => $episode) {
                 $dataOut[] = [
-                    'tvShow' => $tvShow,
+                    'title' => $tvShow,
                     'episodes' => $episode,
                 ];
             }
