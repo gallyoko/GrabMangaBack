@@ -26,6 +26,14 @@ generate:
     type:     rest
     resource: GrabMangaBundle\Controller\GenerateController
 
+freebox:
+    type:     rest
+    resource: GrabMangaBundle\Controller\FreeboxController
+
+torrent:
+    type:     rest
+    resource: GrabMangaBundle\Controller\TorrentController
+
 archive.download:
     path:     /archive/download/{token}/{id}
     defaults: { _controller: GrabMangaBundle:Archive:download }

@@ -3,12 +3,20 @@ services:
         class: GrabMangaBundle\Services\MessageService
         arguments: [ ]
 
+    freebox.service:
+        class: GrabMangaBundle\Services\FreeboxService
+        arguments: [ ]
+
     security.service:
         class: GrabMangaBundle\Services\SecurityService
         arguments: [ "@doctrine", "@validator", "@message.service", "%security%" ]
 
     japscan.service:
         class: GrabMangaBundle\Services\JapscanService
+        arguments: [ ]
+
+    torrent.service:
+        class: GrabMangaBundle\Services\TorrentService
         arguments: [ ]
 
     bdd.service:

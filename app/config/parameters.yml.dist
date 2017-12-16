@@ -20,9 +20,9 @@ parameters:
 
     path:
         ebook:
-            src: 'tmp/ebook/src'
-            dst: 'tmp/ebook/dst'
-            pdf: 'tmp/ebook/pdf'
+            src: 'tmp/src'
+            dst: 'tmp/dst'
+            pdf: 'ebook'
 
     security:
         token:
