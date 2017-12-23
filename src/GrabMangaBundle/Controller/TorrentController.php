@@ -36,4 +36,17 @@ class TorrentController extends Controller
         }
     }
 
+    /**
+     * @Rest\View()
+     * @Rest\Get("/torrent/tvshow/{title}")
+     */
+    public function getTvShowAction($title) {
+        try {
+            $tvShow = $this->get('torrent.service')->getTvShow('series', $title);
+            return $tvShow;
+        } catch (\Exception $ex) {
+            return View::create(['message' => $ex->getMessage()], $ex->getCode());
+        }
+    }
+
 }
